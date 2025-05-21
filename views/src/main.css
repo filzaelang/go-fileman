@@ -1,0 +1,31 @@
+@import "tailwindcss";
+
+.sidebar {
+  @apply transition-all duration-300 ease-in-out;
+}
+
+.menu-link {
+  @apply sm:ps-3 py-1 flex flex-row items-center gap-3 hover:bg-gray-800 hover:text-white justify-center sm:justify-start;
+}
+
+/* .menu-link {
+  @apply relative sm:ps-3 py-1 flex flex-row items-center gap-3 hover:bg-gray-800 hover:text-white justify-center sm:justify-start group;
+} */
+
+.menu-link .tooltip {
+  @apply absolute left-full top-1/2 -translate-y-1/2 bg-gray-800 text-white text-sm whitespace-nowrap px-2 py-1 rounded hidden group-hover:block z-50;
+}
+
+.menu-link:hover .text-link,
+.menu-link:hover .icon-link {
+  @apply text-white block; 
+  /* yang saya inginkan jika dia di hover maka akan melebar kesamping menembus batas sidebar masuk ke main content */
+}
+
+.text-link {
+  @apply text-gray-400 hidden sm:block;
+}
+
+.icon-link {
+  @apply text-gray-300 text-xl sm:text-sm;
+}
