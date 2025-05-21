@@ -1,3 +1,3 @@
-GO-INERTIA-REACT_TEMPLATE
+GO-FILEMAN
 
-A base template for creating golang inertia react project, To make setup easier
+A go version of File Manager Application
