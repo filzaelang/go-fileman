@@ -13,5 +13,9 @@ function Index({ phrase }) {
   );
 }
 
-Index.layout = (page) => <Layout>{page}</Layout>;
+Index.layout = (page) => {
+  const props = page.props;
+  return <Layout menus={props.menus}>{page}</Layout>;
+};
+
 export default Index;

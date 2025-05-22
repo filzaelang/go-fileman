@@ -9,7 +9,7 @@ createInertiaApp({
     const pages = import.meta.glob("./pages/**/*.jsx", { eager: true });
     const match = Object.entries(pages).find(([path]) => {
       return (
-        path === `./pages/${name}.jsx` || path === `./pages/${name}/index.jsx`
+        path === `./pages/${name}.jsx` || path === `./pages/${name}/Index.jsx`
       );
     });
 

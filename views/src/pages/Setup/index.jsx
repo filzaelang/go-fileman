@@ -1,6 +1,6 @@
 import Layout from "../../layouts/Layout";
 
-function index({ phrase }) {
+function Index({ phrase }) {
   return (
     <>
       <h1 className="font-bold text-2xl">{phrase}</h1>
@@ -8,5 +8,9 @@ function index({ phrase }) {
   );
 }
 
-index.layout = (page) => <Layout>{page}</Layout>;
-export default index;
+Index.layout = (page) => {
+  const props = page.props;
+  return <Layout menus={props.menus}>{page}</Layout>;
+};
+
+export default Index;

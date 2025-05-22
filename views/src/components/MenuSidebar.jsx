@@ -9,7 +9,7 @@ import { FaBriefcase } from "react-icons/fa";
 import { FaFolderOpen } from "react-icons/fa6";
 import { HiMiniUserGroup } from "react-icons/hi2";
 
-const menus = [
+const staticMenus = [
   {
     name: "Dashboard",
     uri: "/dashboard",
@@ -56,28 +56,14 @@ const menus = [
     uri: "/allfiles",
     icon: <IoDocuments className="icon-link" />,
   },
-  {
-    name: "Dummy",
-    children: [
-      {
-        name: "User Setup",
-        uri: "/setup/user",
-      },
-      {
-        name: "Roles",
-        uri: "/setup/roles",
-        children: [
-          { name: "Admin", uri: "/setup/roles/admin" },
-          { name: "User", uri: "/setup/roles/user" },
-        ],
-      },
-    ],
-  },
 ];
 
-function MenuSidebar() {
+function MenuSidebar({ menus = [] }) {
   return (
     <>
+      {staticMenus.map((menu, index) => (
+        <MenuItem key={index} menu={menu} />
+      ))}
       {menus.map((menu, index) => (
         <MenuItem key={index} menu={menu} />
       ))}

@@ -4,8 +4,9 @@ import { GoDotFill } from "react-icons/go";
 import { FaUserCircle } from "react-icons/fa";
 import { MdOutlineLogout } from "react-icons/md";
 import MenuSidebar from "../components/MenuSidebar";
+import { FaPlus } from "react-icons/fa";
 
-export default function Layout({ children }) {
+export default function Layout({ children, menus }) {
   return (
     <div className="flex flex-row min-h-screen">
       {/* Sidebar */}
@@ -28,10 +29,15 @@ export default function Layout({ children }) {
             </div>
           </div>
         </div>
-        <div className="bg-gray-900 p-3 hidden sm:block">
-          <p className="text-sm text-gray-600">MENU</p>
+        <div className="hidden bg-gray-900 sm:flex sm:flex-row sm:p-3 sm:justify-between">
+          <div className="">
+            <p className="text-sm text-gray-600">MENU</p>
+          </div>
+          <div className="">
+            <FaPlus className="text-gray-300" />
+          </div>
         </div>
-        <MenuSidebar />
+        <MenuSidebar menus={menus} />
         <div className="bg-gray-900 p-3 hidden sm:block">
           <p className="text-sm text-gray-600">LOG OUT</p>
         </div>

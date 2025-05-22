@@ -1,6 +1,7 @@
 package main
 
 import (
+	"file-manager/db"
 	"file-manager/middleware"
 	"file-manager/routes"
 	"log"
@@ -14,6 +15,8 @@ func main() {
 	if err != nil {
 		log.Fatal("Error loading .env file")
 	}
+
+	db.Init()
 
 	e := echo.New()
 
