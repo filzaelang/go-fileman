@@ -58,14 +58,14 @@ const staticMenus = [
   },
 ];
 
-function MenuSidebar({ menus = [] }) {
+function MenuSidebar({ menus = [], role = "super admin" }) {
   return (
     <>
       {staticMenus.map((menu, index) => (
-        <MenuItem key={index} menu={menu} />
+        <MenuItem key={index} menu={menu} isEditable={false} />
       ))}
       {menus.map((menu, index) => (
-        <MenuItem key={index} menu={menu} />
+        <MenuItem key={index} menu={menu} isEditable={role === "super admin"} />
       ))}
     </>
   );

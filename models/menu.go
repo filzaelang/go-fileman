@@ -2,6 +2,7 @@
 package models
 
 import (
+	"database/sql"
 	"file-manager/db"
 )
 
@@ -9,7 +10,7 @@ type MenuItem struct {
 	ID       int         `json:"id"`
 	Name     string      `json:"name"`
 	Uri      *string     `json:"uri,omitempty"`
-	ParentID *int        `json:"parent_id,omitempty"`
+	ParentID *int        `json:"parent_id"`
 	Children []*MenuItem `json:"children,omitempty"`
 }
 
@@ -86,4 +87,51 @@ func detectCircular(id int, idMap map[int]*MenuItem) bool {
 	}
 
 	return false
+}
+
+func InsertMenu(menu MenuItem) error {
+	_, err := db.DB.Exec(`
+		insert into menu_list (name, uri, parent_id)
+		values (@name, @uri, @parent_id)
+		`,
+		sql.Named("name", menu.Name),
+		sql.Named("uri", menu.Uri),
+		sql.Named("parent_id", menu.ParentID),
+	)
+	return err
+}
+
+func UpdateMenu(menu MenuItem) error {
+	_, err := db.DB.Exec(`
+		update menu_list SET 
+			  name = @name
+			, uri = @uri
+			, parent_id = @parent_id 
+		where id = @id
+		`,
+		sql.Named("name", menu.Name),
+		sql.Named("uri", menu.Uri),
+		sql.Named("parent_id", menu.ParentID),
+		sql.Named("id", menu.ID),
+	)
+	return err
+}
+
+func DeleteMenu(id int) error {
+	_, err := db.DB.Exec(`
+		with RecursiveMenu AS (
+			select id
+			from menu_list
+			where id = @id
+			union all
+			select m.id
+			from menu_list m
+			inner join RecursiveMenu rm ON m.parent_id = rm.id
+		)
+		delete from menu_list
+		where id in (select id from RecursiveMenu);
+		`,
+		sql.Named("id", id),
+	)
+	return err
 }

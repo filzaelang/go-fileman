@@ -10,7 +10,11 @@ function Index({ phrase }) {
 
 Index.layout = (page) => {
   const props = page.props;
-  return <Layout menus={props.menus}>{page}</Layout>;
+  return (
+    <Layout menus={props.menus} role={props.role}>
+      {page}
+    </Layout>
+  );
 };
 
 export default Index;

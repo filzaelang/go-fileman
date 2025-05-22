@@ -1,6 +1,7 @@
 package routes
 
 import (
+	"file-manager/api"
 	"file-manager/models"
 	"log"
 	"net/http"
@@ -30,6 +31,8 @@ func PropagateFullURI(nodes []*models.MenuItem, base string) {
 }
 
 func ConfigureRoutes(e *echo.Echo) {
+	apiGroup := e.Group("/api/menus")
+	api.RegisterMenuRoutes(apiGroup)
 
 	flatMenus, err := models.GetFlatMenus()
 	if err != nil {
@@ -76,12 +79,17 @@ func ConfigureRoutes(e *echo.Echo) {
 	e.GET("/allfiles", func(ctx echo.Context) error {
 		return renderWithMenus(ctx, "AllFiles", "All Files", tree)
 	})
+
+	e.GET("/setup-menu", func(ctx echo.Context) error {
+		return renderWithMenus(ctx, "SetupMenu", "SetupMenu", tree)
+	})
 }
 
 func renderWithMenus(ctx echo.Context, component string, phrase string, tree []*models.MenuItem) error {
 	props := map[string]interface{}{
 		"phrase": phrase,
 		"menus":  tree,
+		"role":   "super admin",
 	}
 
 	return ctx.Render(http.StatusOK, component, props)

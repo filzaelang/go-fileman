@@ -6,12 +6,12 @@ import { MdOutlineLogout } from "react-icons/md";
 import MenuSidebar from "../components/MenuSidebar";
 import { FaPlus } from "react-icons/fa";
 
-export default function Layout({ children, menus }) {
+export default function Layout({ children, menus, role }) {
   return (
     <div className="flex flex-row min-h-screen">
       {/* Sidebar */}
       <div
-        className={`sidebar transition-all duration-300 ease-in-out bg-gray-700 min-h-screen w-18 sm:w-64`}
+        className={`sidebar transition-all duration-300 ease-in-out bg-gray-700 min-h-screen w-18 sm:w-80`}
       >
         <div className="h-10 bg-cyan-600 flex justify-center items-center">
           <p className="text-white font-bold hidden sm:block">FILE MANAGER</p>
@@ -30,12 +30,14 @@ export default function Layout({ children, menus }) {
           </div>
         </div>
         <div className="hidden bg-gray-900 sm:flex sm:flex-row sm:p-3 sm:justify-between">
-          <div className="">
+          <div className="" if>
             <p className="text-sm text-gray-600">MENU</p>
           </div>
-          <div className="">
-            <FaPlus className="text-gray-300" />
-          </div>
+          {role === "super admin" ? (
+            <div>
+              <FaPlus className="text-gray-300" />
+            </div>
+          ) : null}
         </div>
         <MenuSidebar menus={menus} />
         <div className="bg-gray-900 p-3 hidden sm:block">
