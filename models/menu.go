@@ -14,8 +14,14 @@ type MenuItem struct {
 	Children []*MenuItem `json:"children,omitempty"`
 }
 
+type MenuInput struct {
+	Name     string `json:"name"`
+	Uri      string `json:"uri"`
+	ParentID *int   `json:"parent_id"`
+}
+
 func GetFlatMenus() ([]MenuItem, error) {
-	rows, err := db.DB.Query("SELECT id, name, uri, parent_id FROM menu_list ORDER BY id")
+	rows, err := db.DB.Query("select id, name, uri, parent_id from menu_list order by id")
 	if err != nil {
 		return nil, err
 	}
@@ -99,6 +105,23 @@ func InsertMenu(menu MenuItem) error {
 		sql.Named("parent_id", menu.ParentID),
 	)
 	return err
+}
+
+func GetOneMenu(id int) (*MenuItem, error) {
+	row := db.DB.QueryRow(`
+		select id, name, uri, parent_id from menu_list where id = @id 
+		`,
+		sql.Named("id", id),
+	)
+
+	var menu MenuItem
+	err := row.Scan(&menu.ID, &menu.Name, &menu.Uri, &menu.ParentID)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &menu, nil
 }
 
 func UpdateMenu(menu MenuItem) error {

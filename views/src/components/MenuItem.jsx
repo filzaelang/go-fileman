@@ -4,26 +4,47 @@ import { FaChevronDown, FaFolder, FaChevronLeft } from "react-icons/fa";
 import { FaPlus } from "react-icons/fa";
 import { MdEdit } from "react-icons/md";
 import { MdDelete } from "react-icons/md";
-import { useForm } from "@inertiajs/react";
+import { router } from "@inertiajs/react";
+import ModalDeleteMenu from "./Modal/ModalDeleteMenu";
+import ModalAddMenu from "./Modal/ModalAddMenu";
+import ModalEditMenu from "./Modal/ModalEditMenu";
 
 function MenuItem({ menu, level = 0, isEditable }) {
   const [open, setOpen] = useState(false);
   const hasChildren = menu.children && menu.children.length > 0;
-  const { delete: destroy } = useForm();
+  const [isMAddOpen, setIsMAddOpen] = useState(false);
+  const [isMDelOpen, setIsMDelOpen] = useState(false);
+  const [isMEditOpen, setIsMEditOpen] = useState(false);
+
+  const add = (data) => {
+    setIsMAddOpen(false);
+    router.post("/api/menus", data, {
+      onSuccess: () => router.visit("/"),
+    });
+  };
+
+  const edit = (data) => {
+    setIsMEditOpen(false);
+    router.put(`api/menus/${data.id}`, data, {
+      onSuccess: () => router.visit("/"),
+    });
+  };
 
   const remove = (id) => {
-    if (confirm("Yakin mau hapus?")) {
-      destroy(`/api/menus/${id}`, {
-        preserveScroll: true,
-      });
-    }
+    setIsMDelOpen(false);
+    router.delete(`/api/menus/${id}`, {
+      onSuccess: () => router.visit("/"),
+    });
   };
 
   return (
     <div className={`pl-${level * 4}`}>
       <div
         className="menu-link cursor-pointer flex flex-row items-center gap-2 justify-center"
-        onClick={() => hasChildren && setOpen(!open)}
+        onClick={(e) => {
+          e.stopPropagation();
+          hasChildren && setOpen(!open);
+        }}
       >
         <div className="flex flex-row items-center justify-center sm:justify-between  sm:w-[100%] sm:me-3">
           <div className="">
@@ -48,19 +69,49 @@ function MenuItem({ menu, level = 0, isEditable }) {
             {isEditable && (
               <MdDelete
                 className="text-red-300 hidden sm:block"
-                onClick={() => remove(menu.id)}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setIsMDelOpen(true);
+                }}
+              />
+            )}
+            {isMDelOpen && (
+              <ModalDeleteMenu
+                setIsMDelOpen={setIsMDelOpen}
+                onDelete={remove}
+                id={menu.id}
               />
             )}
             {isEditable && (
               <MdEdit
                 className="text-gray-300 hidden sm:block"
-                onClick={() => alert("Edit Menu")}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setIsMEditOpen(true);
+                }}
+              />
+            )}
+            {isMEditOpen && (
+              <ModalEditMenu
+                setIsMEditOpen={setIsMEditOpen}
+                onSubmit={edit}
+                id={menu.id}
               />
             )}
             {isEditable && (
               <FaPlus
                 className="text-gray-300 hidden sm:block"
-                onClick={() => alert("Add Menu")}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setIsMAddOpen(true);
+                }}
+              />
+            )}
+            {isMAddOpen && (
+              <ModalAddMenu
+                setIsMAddOpen={setIsMAddOpen}
+                onSubmit={add}
+                id={null}
               />
             )}
           </div>

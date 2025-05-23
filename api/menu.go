@@ -15,6 +15,17 @@ func RegisterMenuRoutes(g *echo.Group) {
 		return c.JSON(http.StatusOK, tree)
 	})
 
+	g.GET("/:id", func(c echo.Context) error {
+		id, _ := strconv.Atoi(c.Param("id"))
+
+		menu, err := models.GetOneMenu(id)
+		if err != nil {
+			return c.String(http.StatusNotFound, "Menu not found")
+		}
+
+		return c.JSON(http.StatusOK, menu)
+	})
+
 	g.POST("", func(c echo.Context) error {
 		var payload models.MenuItem
 		if err := c.Bind(&payload); err != nil {
@@ -23,7 +34,7 @@ func RegisterMenuRoutes(g *echo.Group) {
 		if err := models.InsertMenu(payload); err != nil {
 			return c.String(http.StatusInternalServerError, "Insert failed")
 		}
-		return c.NoContent(http.StatusCreated)
+		return c.Redirect(http.StatusSeeOther, "/")
 	})
 
 	g.PUT("/:id", func(c echo.Context) error {
@@ -35,7 +46,7 @@ func RegisterMenuRoutes(g *echo.Group) {
 		if err := models.UpdateMenu(payload); err != nil {
 			return c.String(http.StatusInternalServerError, "Update failed")
 		}
-		return c.NoContent(http.StatusOK)
+		return c.Redirect(http.StatusSeeOther, "/")
 	})
 
 	g.DELETE("/:id", func(c echo.Context) error {
@@ -43,6 +54,6 @@ func RegisterMenuRoutes(g *echo.Group) {
 		if err := models.DeleteMenu(id); err != nil {
 			return c.String(http.StatusInternalServerError, "Delete failed")
 		}
-		return c.NoContent(http.StatusOK)
+		return c.Redirect(http.StatusSeeOther, "/")
 	})
 }

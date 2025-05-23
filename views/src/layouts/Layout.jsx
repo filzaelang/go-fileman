@@ -1,12 +1,24 @@
 import { Link } from "@inertiajs/react";
+import { useState } from "react";
 import { GiHamburgerMenu } from "react-icons/gi";
 import { GoDotFill } from "react-icons/go";
 import { FaUserCircle } from "react-icons/fa";
 import { MdOutlineLogout } from "react-icons/md";
 import MenuSidebar from "../components/MenuSidebar";
 import { FaPlus } from "react-icons/fa";
+import { router } from "@inertiajs/react";
+import ModalAddMenu from "../components/Modal/ModalAddMenu";
 
 export default function Layout({ children, menus, role }) {
+  const [isMAddOpen, setIsMAddOpen] = useState(false);
+
+  const add = (data) => {
+    setIsMAddOpen(false);
+    router.post("/api/menus", data, {
+      onSuccess: () => router.visit("/"),
+    });
+  };
+
   return (
     <div className="flex flex-row min-h-screen">
       {/* Sidebar */}
@@ -30,14 +42,23 @@ export default function Layout({ children, menus, role }) {
           </div>
         </div>
         <div className="hidden bg-gray-900 sm:flex sm:flex-row sm:p-3 sm:justify-between">
-          <div className="" if>
+          <div className="">
             <p className="text-sm text-gray-600">MENU</p>
           </div>
           {role === "super admin" ? (
             <div>
-              <FaPlus className="text-gray-300" />
+              <FaPlus
+                className="text-gray-300"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setIsMAddOpen(true);
+                }}
+              />
             </div>
           ) : null}
+          {isMAddOpen && (
+            <ModalAddMenu setIsMAddOpen={setIsMAddOpen} onSubmit={add} />
+          )}
         </div>
         <MenuSidebar menus={menus} />
         <div className="bg-gray-900 p-3 hidden sm:block">
