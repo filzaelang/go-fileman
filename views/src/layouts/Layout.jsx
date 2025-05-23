@@ -57,7 +57,11 @@ export default function Layout({ children, menus, role }) {
             </div>
           ) : null}
           {isMAddOpen && (
-            <ModalAddMenu setIsMAddOpen={setIsMAddOpen} onSubmit={add} />
+            <ModalAddMenu
+              setIsMAddOpen={setIsMAddOpen}
+              onSubmit={add}
+              id={null}
+            />
           )}
         </div>
         <MenuSidebar menus={menus} />

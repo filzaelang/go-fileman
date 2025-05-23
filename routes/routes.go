@@ -92,6 +92,7 @@ func dynamicMenuHandler(ctx echo.Context) error {
 	props := map[string]interface{}{
 		"phrase": matched.Name,
 		"menus":  tree,
+		"role":   "super admin",
 	}
 
 	return ctx.Render(http.StatusOK, "GeneralPage", props)

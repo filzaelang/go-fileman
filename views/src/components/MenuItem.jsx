@@ -111,7 +111,7 @@ function MenuItem({ menu, level = 0, isEditable }) {
               <ModalAddMenu
                 setIsMAddOpen={setIsMAddOpen}
                 onSubmit={add}
-                id={null}
+                id={menu.id}
               />
             )}
           </div>
