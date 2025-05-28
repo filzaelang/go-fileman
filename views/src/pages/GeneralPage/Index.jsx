@@ -1,8 +1,19 @@
 import Layout from "../../layouts/Layout";
 import { usePage } from "@inertiajs/react";
+import { router } from "@inertiajs/react";
+import ModalUpload from "../../components/Modal/ModalUpload";
+import { useState } from "react";
 
 function Index({ phrase, items }) {
   const { url } = usePage();
+  const [isMUploadOpen, setIsMUploadOpen] = useState(false);
+
+  const upload = (data) => {
+    setIsMUploadOpen(false);
+    router.post("/api/menus", data, {
+      onSuccess: () => router.visit("/"),
+    });
+  };
 
   return (
     <>
@@ -15,7 +26,10 @@ function Index({ phrase, items }) {
           <div className="flex flex-row gap-2">
             <button
               className="bg-blue-400 p-2 rounded-md text-white hover:bg-blue-500"
-              onClick={() => alert("Hello")}
+              onClick={(e) => {
+                e.stopPropagation();
+                setIsMUploadOpen(true);
+              }}
             >
               Upload File
             </button>
@@ -24,6 +38,9 @@ function Index({ phrase, items }) {
             </button>
           </div>
         </div>
+        {isMUploadOpen && (
+          <ModalUpload setIsMUploadOpen={setIsMUploadOpen} onSubmit={upload} />
+        )}
         <div>
           <div className="mt-2">
             <span>Show</span>

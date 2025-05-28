@@ -42,4 +42,8 @@ func RegisterFileRoutes(g *echo.Group) {
 		c.Response().Header().Set(echo.HeaderContentDisposition, `inline; filename="`+fileName+`"`)
 		return c.Stream(http.StatusOK, "application/pdf", file)
 	})
+
+	g.POST("", func(c echo.Context) error {
+
+	})
 }
