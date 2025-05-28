@@ -1,9 +1,11 @@
 import Layout from "../../layouts/Layout";
+import GeneralPage from "../GeneralPage/Index";
 
-function Index({ phrase }) {
+function Index({ phrase, items }) {
   return (
     <>
-      <h1 className="font-bold text-2xl">{phrase}</h1>
+      {/* <h1 className="font-bold text-2xl">{phrase}</h1> */}
+      <GeneralPage phrase={phrase} items={items} />
     </>
   );
 }

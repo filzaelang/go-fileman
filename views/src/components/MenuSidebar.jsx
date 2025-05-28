@@ -64,9 +64,9 @@ function MenuSidebar({ menus = [], role = "super admin" }) {
       {staticMenus.map((menu, index) => (
         <MenuItem key={index} menu={menu} isEditable={false} />
       ))}
-      {menus.map((menu, index) => (
+      {/* {menus.map((menu, index) => (
         <MenuItem key={index} menu={menu} isEditable={role === "super admin"} />
-      ))}
+      ))} */}
     </>
   );
 }

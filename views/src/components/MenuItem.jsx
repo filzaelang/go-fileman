@@ -19,21 +19,21 @@ function MenuItem({ menu, level = 0, isEditable }) {
   const add = (data) => {
     setIsMAddOpen(false);
     router.post("/api/menus", data, {
-      onSuccess: () => router.visit("/"),
+      onSuccess: () => router.visit(window.location.pathname),
     });
   };
 
   const edit = (data) => {
     setIsMEditOpen(false);
     router.put(`api/menus/${data.id}`, data, {
-      onSuccess: () => router.visit("/"),
+      onSuccess: () => router.visit(window.location.pathname),
     });
   };
 
   const remove = (id) => {
     setIsMDelOpen(false);
     router.delete(`/api/menus/${id}`, {
-      onSuccess: () => router.visit("/"),
+      onSuccess: () => router.visit(window.location.pathname),
     });
   };
 

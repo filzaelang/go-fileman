@@ -35,6 +35,7 @@ func RegisterMenuRoutes(g *echo.Group) {
 			return c.String(http.StatusInternalServerError, "Insert failed")
 		}
 		return c.Redirect(http.StatusSeeOther, "/")
+		// return c.Redirect(http.StatusSeeOther, c.Request().RequestURI)
 	})
 
 	g.PUT("/:id", func(c echo.Context) error {
@@ -47,6 +48,7 @@ func RegisterMenuRoutes(g *echo.Group) {
 			return c.String(http.StatusInternalServerError, "Update failed")
 		}
 		return c.Redirect(http.StatusSeeOther, "/")
+		// return c.Redirect(http.StatusSeeOther, c.Request().RequestURI)
 	})
 
 	g.DELETE("/:id", func(c echo.Context) error {

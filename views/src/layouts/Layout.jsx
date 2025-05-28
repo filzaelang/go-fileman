@@ -29,12 +29,12 @@ export default function Layout({ children, menus, role }) {
           <p className="text-white font-bold hidden sm:block">FILE MANAGER</p>
         </div>
         <div className="flex flex-row py-3 justify-center items-center">
-          <div className="sm:ms-3 w-1/4 flex flex-row">
+          <div className="sm:ms-3 flex flex-row">
             <p className="text-xl justify-center  sm:text-5xl text-white">
               <FaUserCircle />
             </p>
           </div>
-          <div className="flex-col w-3/4 justify-start hidden sm:block">
+          <div className="flex-col justify-start mx-3 hidden sm:block">
             <p className="text-white font-bold">Administrator</p>
             <div className="flex flex-row items-center text-white text-sm">
               <GoDotFill /> Online
