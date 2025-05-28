@@ -19,19 +19,18 @@ func RegisterFileRoutes(g *echo.Group) {
 			return c.String(http.StatusNotFound, "File not found")
 		}
 
-		// Validasi file ada
 		if _, err := os.Stat(filePath); os.IsNotExist(err) {
 			return c.String(http.StatusNotFound, "File not found on disk")
 		}
 
 		var filePathOut = `C:\FileManager\out.pdf`
+		var username = "admin"
 
-		err = helpers.AddPDFWatermark(filePath, filePathOut)
+		err = helpers.AddPDFWatermark(filePath, filePathOut, username)
 		if err != nil {
 			return c.String(http.StatusInternalServerError, "Failed to apply watermark to the file")
 		}
 
-		// Buka File
 		file, err := os.Open(filePathOut)
 		if err != nil {
 			return err
