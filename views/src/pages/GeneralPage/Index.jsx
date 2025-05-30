@@ -15,6 +15,12 @@ function Index({ phrase, items }) {
     });
   };
 
+  const deleteFile = (id) => {
+    router.delete(`/api/files/${id}`, {
+      onSuccess: () => router.visit("/"),
+    });
+  };
+
   return (
     <>
       <div>
@@ -172,7 +178,7 @@ function Index({ phrase, items }) {
                         rel="noopener noreferrer"
                         className="bg-green-500 py-1 px-2 text-sm rounded-md text-white hover:bg-green-700 focus:ring-gray-700"
                       >
-                        View PDF
+                        Download PDF
                       </a>
                     </td>
                     <td class="p-4 border-b border-blue-gray-50">
@@ -181,9 +187,12 @@ function Index({ phrase, items }) {
                       </button>
                     </td>
                     <td class="p-4 border-b border-blue-gray-50">
-                      <button className="bg-red-500 py-1 px-2 text-sm rounded-md text-white hover:bg-red-700">
+                      {/* <button
+                        className="bg-red-500 py-1 px-2 text-sm rounded-md text-white hover:bg-red-700"
+                        onClick={deleteFile(item.fileoid)}
+                      >
                         Delete
-                      </button>
+                      </button> */}
                     </td>
                   </tr>
                 ))}

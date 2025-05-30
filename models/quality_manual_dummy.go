@@ -243,6 +243,10 @@ func Upload(fileHeader *multipart.FileHeader, c echo.Context) (string, error) {
 	return "File berhasil diupload", nil
 }
 
+// func Delete() {
+
+// }
+
 // userdeptoid := 0
 
 // var filepathStr string = ""

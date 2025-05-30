@@ -3,17 +3,27 @@ package helpers
 import (
 	"os"
 
-	"github.com/pdfcpu/pdfcpu/pkg/api"
-
+	"fmt"
 	"image/png"
+	"os/exec"
 )
 
 func CompressPdf(srcPath, dstPath string) error {
-	err := api.OptimizeFile(srcPath, dstPath, nil)
+	cmd := exec.Command("gswin64c",
+		"-sDEVICE=pdfwrite",
+		"-dCompatibilityLevel=1.4",
+		"-dPDFSETTINGS=/ebook",
+		"-dAutoRotatePages=/None",
+		"-dNOPAUSE",
+		"-dBATCH",
+		fmt.Sprintf("-sOutputFile=%s", dstPath),
+		srcPath,
+	)
+
+	_, err := cmd.CombinedOutput()
 	if err != nil {
 		return err
 	}
-
 	return nil
 }
 
@@ -43,3 +53,19 @@ func CompressPng(srcPath, dstPath string) error {
 
 	return encoder.Encode(out, img)
 }
+
+// func CompressPdf(srcPath, dstPath string) error {
+// 	conf := model.NewDefaultConfiguration()
+
+// 	conf.Optimize = true
+// 	conf.OptimizeBeforeWriting = true
+// 	conf.OptimizeResourceDicts = true
+// 	conf.OptimizeDuplicateContentStreams = true
+
+// 	err := api.OptimizeFile(srcPath, dstPath, conf)
+// 	if err != nil {
+// 		return err
+// 	}
+
+// 	return nil
+// }

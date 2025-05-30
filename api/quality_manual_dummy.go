@@ -58,4 +58,21 @@ func RegisterFileRoutes(g *echo.Group) {
 
 		return c.String(http.StatusOK, result)
 	})
+
+	g.DELETE("/:id", func(c echo.Context) error {
+		// id, _ := strconv.Atoi(c.Param("id"))
+
+		var filePathDelete = `C:\FileManager\percobaan.pdf`
+
+		if _, err := os.Stat(filePathDelete); os.IsNotExist(err) {
+			return c.String(http.StatusNotFound, "File not found on disk")
+		}
+
+		err := os.Remove(filePathDelete)
+		if err != nil {
+			return c.String(http.StatusNotFound, err.Error())
+		}
+
+		return c.String(http.StatusOK, "Delete berhasil")
+	})
 }
