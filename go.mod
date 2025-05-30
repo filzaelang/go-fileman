@@ -24,6 +24,7 @@ require (
 	github.com/unidoc/pkcs7 v0.2.0 // indirect
 	github.com/unidoc/timestamp v0.0.0-20200412005513-91597fd3793a // indirect
 	github.com/unidoc/unitype v0.5.1 // indirect
+	github.com/yusukebe/go-pngquant v0.0.0-20200223090257-49b91f11b627 // indirect
 	golang.org/x/image v0.26.0 // indirect
 	golang.org/x/xerrors v0.0.0-20240903120638-7835f813f4da // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
@@ -32,6 +33,7 @@ require (
 
 require (
 	github.com/denisenkom/go-mssqldb v0.12.3
+	github.com/disintegration/imaging v1.6.2
 	github.com/golang-sql/civil v0.0.0-20190719163853-cb61b32ac6fe // indirect
 	github.com/golang-sql/sqlexp v0.1.0 // indirect
 	github.com/labstack/echo v3.3.10+incompatible

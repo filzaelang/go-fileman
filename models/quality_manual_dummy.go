@@ -8,6 +8,7 @@ import (
 	"mime/multipart"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 
 	"github.com/labstack/echo/v4"
@@ -192,6 +193,8 @@ func Upload(fileHeader *multipart.FileHeader, c echo.Context) (string, error) {
 	}
 	defer src.Close()
 
+	ext := strings.ToLower(filepath.Ext(fileHeader.Filename))
+
 	// get metadata from form
 	ducumentNumber := c.FormValue("document_number")
 	documentName := c.FormValue("document_name")
@@ -220,10 +223,16 @@ func Upload(fileHeader *multipart.FileHeader, c echo.Context) (string, error) {
 	}
 	dst.Close()
 
-	afterCompressPath := filepath.Join("C:\\FileManager", (documentName + ".pdf"))
-	compress, err := helpers.CompressPdf(targetPath, afterCompressPath)
-	if err != nil {
-		return compress, err
+	compressedPath := filepath.Join("C:\\FileManager", (documentName + ext))
+
+	if ext == ".pdf" {
+		if err := helpers.CompressPdf(targetPath, compressedPath); err != nil {
+			return "Gagal mengompresi PDF", err
+		}
+	} else if ext == ".png" {
+		if err := helpers.CompressPng(targetPath, compressedPath); err != nil {
+			return "Gagal mengompresi PNG", err
+		}
 	}
 
 	// Hapus file asli
