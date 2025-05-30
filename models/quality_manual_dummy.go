@@ -178,6 +178,10 @@ func FileDownloadHarian(id int) (string, string, error) {
 	return filepathStr, filename, nil
 }
 
+func Upload() {
+
+}
+
 // userdeptoid := 0
 
 // var filepathStr string = ""

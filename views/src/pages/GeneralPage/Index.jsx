@@ -10,7 +10,7 @@ function Index({ phrase, items }) {
 
   const upload = (data) => {
     setIsMUploadOpen(false);
-    router.post("/api/menus", data, {
+    router.post("/api/files", data, {
       onSuccess: () => router.visit("/"),
     });
   };

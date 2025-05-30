@@ -2,12 +2,14 @@ import React from "react";
 import { RiCloseLine } from "react-icons/ri";
 import { useForm } from "@inertiajs/react";
 
-export default function ModalUpload({ setIsMUploadOpen, onSubmit, id }) {
+export default function ModalUpload({ setIsMUploadOpen, onSubmit }) {
   const { data, setData } = useForm({
     id: null,
-    name: "",
-    uri: "",
-    parent_id: id,
+    document_number: "",
+    document_name: "",
+    revision_number: "",
+    revision_date: "",
+    file: null,
   });
 
   return (
@@ -36,26 +38,21 @@ export default function ModalUpload({ setIsMUploadOpen, onSubmit, id }) {
 
           {/* Content */}
           <div className="p-4">
-            <form className="flex flex-col space-y-3">
+            <form
+              className="flex flex-col space-y-3"
+              onSubmit={(e) => {
+                e.preventDefault();
+                onSubmit(data);
+              }}
+            >
               <label className="w-full text-gray-800 placeholder-gray-400">
                 Document Number:
               </label>
               <input
-                name="name"
+                name="document_number"
                 type="text"
-                value={data.name}
-                onChange={(e) => setData("name", e.target.value)}
-                placeholder="No Dokumen"
-                className="w-full px-3 py-2 text-gray-800 placeholder-gray-400 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
-              />
-              <label className="w-full text-gray-800 placeholder-gray-400">
-                Document Number:
-              </label>
-              <input
-                name="name"
-                type="text"
-                value={data.name}
-                onChange={(e) => setData("name", e.target.value)}
+                value={data.document_number}
+                onChange={(e) => setData("document_number", e.target.value)}
                 placeholder="No Dokumen"
                 className="w-full px-3 py-2 text-gray-800 placeholder-gray-400 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
               />
@@ -63,10 +60,10 @@ export default function ModalUpload({ setIsMUploadOpen, onSubmit, id }) {
                 Document Name:
               </label>
               <input
-                name="name"
+                name="document_name"
                 type="text"
-                value={data.name}
-                onChange={(e) => setData("name", e.target.value)}
+                value={data.document_name}
+                onChange={(e) => setData("document_name", e.target.value)}
                 placeholder="Nama Dokumen"
                 className="w-full px-3 py-2 text-gray-800 placeholder-gray-400 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
               />
@@ -74,19 +71,29 @@ export default function ModalUpload({ setIsMUploadOpen, onSubmit, id }) {
                 Revision Number:
               </label>
               <input
-                name="name"
+                name="revision_number"
                 type="text"
-                value={data.name}
-                onChange={(e) => setData("name", e.target.value)}
+                value={data.revision_number}
+                onChange={(e) => setData("revision_number", e.target.value)}
                 placeholder="No Revisi"
                 className="w-full px-3 py-2 text-gray-800 placeholder-gray-400 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
               />
               <label className="w-full text-gray-800 placeholder-gray-400">
                 Revision Date:
               </label>
-              <input type="date" id="birthday" name="birthday"></input>
-              <input type="file" id="myfile" name="myfile"></input>
-              <button className="bg-blue-400" onClick={() => onSubmit(data)}>
+              <input
+                type="date"
+                id="revision_date"
+                name="revision_date"
+                onChange={(e) => setData("revision_date", e.target.value)}
+              ></input>
+              <input
+                type="file"
+                id="file"
+                name="file"
+                onChange={(e) => setData("file", e.target.files[0])}
+              ></input>
+              <button className="bg-blue-400" type="submit">
                 Upload
               </button>
               <button
