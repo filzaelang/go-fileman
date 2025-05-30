@@ -187,12 +187,15 @@ function Index({ phrase, items }) {
                       </button>
                     </td>
                     <td class="p-4 border-b border-blue-gray-50">
-                      {/* <button
+                      <button
                         className="bg-red-500 py-1 px-2 text-sm rounded-md text-white hover:bg-red-700"
-                        onClick={deleteFile(item.fileoid)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          deleteFile(item.fileoid);
+                        }}
                       >
                         Delete
-                      </button> */}
+                      </button>
                     </td>
                   </tr>
                 ))}
