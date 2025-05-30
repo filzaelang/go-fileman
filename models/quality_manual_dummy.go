@@ -2,6 +2,7 @@ package models
 
 import (
 	"file-manager/db"
+	"file-manager/helpers"
 	"fmt"
 	"io"
 	"mime/multipart"
@@ -212,10 +213,22 @@ func Upload(fileHeader *multipart.FileHeader, c echo.Context) (string, error) {
 	if err != nil {
 		return "Gagal menyimpan file", err
 	}
-	defer dst.Close()
 
 	if _, err = io.Copy(dst, src); err != nil {
+		dst.Close()
 		return "Gagal menyalin file", err
+	}
+	dst.Close()
+
+	afterCompressPath := filepath.Join("C:\\FileManager", (documentName + ".pdf"))
+	compress, err := helpers.CompressPdf(targetPath, afterCompressPath)
+	if err != nil {
+		return compress, err
+	}
+
+	// Hapus file asli
+	if err := os.Remove(targetPath); err != nil {
+		return "Gagal menghapus file asli", err
 	}
 
 	return "File berhasil diupload", nil
