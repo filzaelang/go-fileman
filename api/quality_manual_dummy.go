@@ -3,13 +3,9 @@ package api
 import (
 	"file-manager/helpers"
 	"file-manager/models"
-	"fmt"
-	"io"
 	"net/http"
 	"os"
-	"path/filepath"
 	"strconv"
-	"time"
 
 	"github.com/labstack/echo/v4"
 )
@@ -54,39 +50,12 @@ func RegisterFileRoutes(g *echo.Group) {
 			return c.String(http.StatusBadRequest, "File tidak ditemukan")
 		}
 
-		src, err := fileHeader.Open()
+		result, err := models.Upload(fileHeader, c)
+
 		if err != nil {
-			return c.String(http.StatusInternalServerError, "Gagal membuka file")
-		}
-		defer src.Close()
-
-		// get metadata from form
-		ducumentNumber := c.FormValue("document_number")
-		documentName := c.FormValue("document_name")
-		revisionNumber := c.FormValue("revision_number")
-		// revisionDate := c.FormValue("revision_date")
-
-		// Save file to C:\FileManager\ with unique name
-		timestamp := time.Now().Format("20060102_150405")
-		safeFileName := fmt.Sprintf("%s_%s_%s_%s%s",
-			ducumentNumber,
-			documentName,
-			revisionNumber,
-			timestamp,
-			filepath.Ext(fileHeader.Filename),
-		)
-		targetPath := filepath.Join("C:\\FileManager", safeFileName)
-
-		dst, err := os.Create(targetPath)
-		if err != nil {
-			return c.String(http.StatusInternalServerError, "Gagal menyimpan file")
-		}
-		defer dst.Close()
-
-		if _, err = io.Copy(dst, src); err != nil {
-			return c.String(http.StatusInternalServerError, "Gagal menyalin file")
+			return c.String(http.StatusInternalServerError, result)
 		}
 
-		return c.String(http.StatusOK, "File berhasil diupload")
+		return c.String(http.StatusOK, result)
 	})
 }
