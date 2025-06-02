@@ -9,6 +9,14 @@ import (
 )
 
 func RegisterMenuRoutes(g *echo.Group) {
+	// g.GET("", func(c echo.Context) error {
+	// 	menu_list, err := models.MenuList()
+	// 	if err != nil {
+	// 		return c.String(http.StatusNotFound, "Menu not found")
+	// 	}
+	// 	return c.JSON(http.StatusOK, menu_list)
+	// })
+
 	g.GET("", func(c echo.Context) error {
 		flat, _ := models.GetFlatMenus()
 		tree := models.BuildMenuTree(flat)

@@ -1,0 +1,28 @@
+package models
+
+import (
+	"time"
+)
+
+type Files struct {
+	Fileoid        int       `json:"fileoid"`
+	Divoid         int       `json:"divoid"`
+	Deptoid        int       `json:"deptoid"`
+	Leveloid       int       `json:"leveloid"`
+	Folderoid      int       `json:"folderoid"`
+	Filename       string    `json:"filename"`
+	Fileurl        string    `json:"fileurl"`
+	Createuser     string    `json:"createuser"`
+	Createtime     time.Time `json:"createtime"`
+	Lastupduser    string    `json:"lastupduser"`
+	Lastupdatetime time.Time `json:"lastupdatetime"`
+	Divzip         string    `json:"divzip"`
+	Filenumber     string    `json:"filenumber"`
+	Filerevdate    time.Time `json:"filerevdate"`
+	Fileoldnumber  string    `json:"fileoldnumber"`
+	Filevisible    bool      `json:"filevisible"`
+}
+
+func GetLapHarian(id, divoid, deptoid int) (Files, error) {
+
+}

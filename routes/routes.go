@@ -3,6 +3,7 @@ package routes
 import (
 	"file-manager/api"
 	"file-manager/models"
+	"log"
 	"net/http"
 	"strings"
 
@@ -30,8 +31,8 @@ func PropagateFullURI(nodes []*models.MenuItem, base string) {
 }
 
 func ConfigureRoutes(e *echo.Echo) {
-	// apiGroup := e.Group("/api/menus")
-	// api.RegisterMenuRoutes(apiGroup)
+	apiGroupMenu := e.Group("/api/menus")
+	api.RegisterMenuRoutes(apiGroupMenu)
 	apiGroupFiles := e.Group("/api/files")
 	api.RegisterFileRoutes(apiGroupFiles)
 
@@ -75,48 +76,48 @@ func ConfigureRoutes(e *echo.Echo) {
 	})
 }
 
-// func dynamicMenuHandler(ctx echo.Context) error {
-// 	requestedUri := ctx.Request().URL.Path
+func dynamicMenuHandler(ctx echo.Context) error {
+	requestedUri := ctx.Request().URL.Path
 
-// 	flatMenus, err := models.GetFlatMenus()
-// 	if err != nil {
-// 		return ctx.String(http.StatusInternalServerError, "Gagal ambil menu")
-// 	}
-// 	tree := models.BuildMenuTree(flatMenus)
-// 	PropagateFullURI(tree, "")
+	flatMenus, err := models.GetFlatMenus()
+	if err != nil {
+		return ctx.String(http.StatusInternalServerError, "Gagal ambil menu")
+	}
+	tree := models.BuildMenuTree(flatMenus)
+	PropagateFullURI(tree, "")
 
-// 	var matched *models.MenuItem
-// 	for _, m := range flatMenus {
-// 		if m.Uri != nil && *m.Uri == requestedUri {
-// 			matched = &m
-// 			break
-// 		}
-// 	}
+	var matched *models.MenuItem
+	for _, m := range flatMenus {
+		if m.Uri != nil && *m.Uri == requestedUri {
+			matched = &m
+			break
+		}
+	}
 
-// 	if matched == nil {
-// 		return ctx.String(http.StatusNotFound, "Halaman tidak ditemukan")
-// 	}
+	if matched == nil {
+		return ctx.String(http.StatusNotFound, "Halaman tidak ditemukan")
+	}
 
-// 	props := map[string]interface{}{
-// 		"phrase": matched.Name,
-// 		"menus":  tree,
-// 		"role":   "super admin",
-// 	}
+	props := map[string]interface{}{
+		"phrase": matched.Name,
+		"menus":  tree,
+		"role":   "super admin",
+	}
 
-// 	return ctx.Render(http.StatusOK, "GeneralPage", props)
-// }
+	return ctx.Render(http.StatusOK, "GeneralPage", props)
+}
 
 func renderWithMenus(ctx echo.Context, component string, phrase string, items []models.FileItem) error {
-	// flatMenus, err := models.GetFlatMenus()
-	// if err != nil {
-	// 	log.Fatal("Failed to load dynamic routes:", err)
-	// }
-	// tree := models.BuildMenuTree(flatMenus)
-	// PropagateFullURI(tree, "")
+	flatMenus, err := models.GetFlatMenus()
+	if err != nil {
+		log.Fatal("Failed to load dynamic routes:", err)
+	}
+	tree := models.BuildMenuTree(flatMenus)
+	PropagateFullURI(tree, "")
 
 	props := map[string]interface{}{
 		"phrase": phrase,
-		"menus":  nil,
+		"menus":  tree,
 		"role":   "super admin",
 		"items":  items,
 	}

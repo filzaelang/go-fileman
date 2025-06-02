@@ -1,0 +1,48 @@
+SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE='BASE TABLE'
+
+(Terkait folder dan menu)
+select distinct headfolder, seq from itg_folder order by seq asc
+select distinct headfolder, type, seq from itg_folder order by seq 
+
+-- Dari Quality Manual, Risk Management, Quality Plan, (Standard Procedure, Standard Instruction, Standard Form) semuanya tergantung folderoid doang (63/0/0) -> (folderoid/divoid/deptoid)
+select * from itg_file where folderoid = 63 order by lastupdatetime desc -- folderoid 63 = Quality Manual
+select * from itg_file where folderoid = 72 order by lastupdatetime desc -- folderoid 72 = Risk Management
+select * from itg_file where folderoid = 62 order by lastupdatetime desc -- folderoid 62 = Quality Plan
+select * from itg_file where folderoid = 75 order by lastupdatetime desc -- folderoid 75 = Standard Procedure -> Sales & Marketing
+
+
+-- Nama folder (besar) disimpan di itg_folder
+   Isinya =
+   folderoid    divoid  deptoid leveloid    headfolder          foldername          divzip  createuser  createtime              lastupduser lastupdatetime          type            seq folderhidebudept
+
+   20	        1	    7	    2	        Quality Procedure   Quality Procedure	CORP	ADMIN	    2020-06-29 07:22:15.000	ADMIN	    2020-06-29 07:22:15.000	budeptfolder	10	N
+   28	        1	    7	    2	        Work Instruction	Work Instruction	CORP	ADMIN	    2020-06-29 07:22:15.000	ADMIN	    2020-06-29 07:22:15.000	budeptfolder	11	N
+   36	        1	    7	    2	        Support Document	Support Document	CORP	ADMIN	    2020-06-29 07:22:15.000	ADMIN	    2020-06-29 07:22:15.000	budeptfolder	12	N
+
+-- Nama PT diambil dari ql_mis_inter
+-- Nama folder (kecil2) disimpan di itg_mstdept
+   Isinya =
+   deptoid  divoid  deptcode    deptname                activeflag  createuser  createtime              lastupduser lastupdatetime              deptdistcode
+
+   1	    4	    PRC	        PURCHASING	            ACTIVE	    admin	    2012-09-27 13:55:10.300	admin	    2012-09-27 13:55:10.300	    X3
+   2	    4	    PR-SPDV	    SUPLIER DEVELOPMENT	    INACTIVE	admin	    2012-09-27 13:56:11.347	admin	    2012-09-27 13:56:11.347	
+   3	    1	    IFTG	    INFORMATION TECHNOLOGY	ACTIVE	    admin	    2012-11-02 15:40:48.640	siokping	2019-10-01 08:28:05.150	    A28
+
+-- divoid diambil dari ql_mis_inter => select div.divoid, div.divname from QL_mstdivision div where activeflag = 'ACTIVE' and div.divoid =  order by divoid asc
+
+Susunan folderku saat ini =
+create table menu_list (
+    id int identity (1,1)
+  , [name] varchar(50)
+  , uri varchar(max)
+  , parent_id int null
+  , divoid int null
+  , leveloid int null
+  , type varchar(20) null
+  
+  , constraint menu_list_pk primary key (id)
+)
+
+Apa yang harus ada = divoid
+Sementara disarankan ada = leveloid, type
+

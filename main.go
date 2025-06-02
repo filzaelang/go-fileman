@@ -18,6 +18,7 @@ func main() {
 
 	db.Init()
 	db.Init_Mis()
+	db.Init_Dev()
 
 	e := echo.New()
 

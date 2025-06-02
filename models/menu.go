@@ -21,7 +21,7 @@ type MenuInput struct {
 }
 
 func GetFlatMenus() ([]MenuItem, error) {
-	rows, err := db.DB.Query("select id, name, uri, parent_id from menu_list order by id")
+	rows, err := db.DB_DEV.Query("select id, name, uri, parent_id from menu_list order by id")
 	if err != nil {
 		return nil, err
 	}
@@ -72,7 +72,7 @@ func BuildMenuTree(flat []MenuItem) []*MenuItem {
 	return roots
 }
 
-// Cegah loop antar parent_id yang menyebabkan infinite recursion
+// // Cegah loop antar parent_id yang menyebabkan infinite recursion
 func detectCircular(id int, idMap map[int]*MenuItem) bool {
 	current := id
 	seen := map[int]bool{}
@@ -96,7 +96,7 @@ func detectCircular(id int, idMap map[int]*MenuItem) bool {
 }
 
 func InsertMenu(menu MenuItem) error {
-	_, err := db.DB.Exec(`
+	_, err := db.DB_DEV.Exec(`
 		insert into menu_list (name, uri, parent_id)
 		values (@name, @uri, @parent_id)
 		`,
@@ -108,8 +108,8 @@ func InsertMenu(menu MenuItem) error {
 }
 
 func GetOneMenu(id int) (*MenuItem, error) {
-	row := db.DB.QueryRow(`
-		select id, name, uri, parent_id from menu_list where id = @id 
+	row := db.DB_DEV.QueryRow(`
+		select id, name, uri, parent_id from menu_list where id = @id
 		`,
 		sql.Named("id", id),
 	)
@@ -125,11 +125,11 @@ func GetOneMenu(id int) (*MenuItem, error) {
 }
 
 func UpdateMenu(menu MenuItem) error {
-	_, err := db.DB.Exec(`
-		update menu_list SET 
+	_, err := db.DB_DEV.Exec(`
+		update menu_list SET
 			  name = @name
 			, uri = @uri
-			, parent_id = @parent_id 
+			, parent_id = @parent_id
 		where id = @id
 		`,
 		sql.Named("name", menu.Name),
@@ -141,7 +141,7 @@ func UpdateMenu(menu MenuItem) error {
 }
 
 func DeleteMenu(id int) error {
-	_, err := db.DB.Exec(`
+	_, err := db.DB_DEV.Exec(`
 		with RecursiveMenu AS (
 			select id
 			from menu_list
