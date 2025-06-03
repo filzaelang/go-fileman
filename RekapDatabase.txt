@@ -39,6 +39,7 @@ create table menu_list (
   , divoid int null
   , leveloid int null
   , type varchar(20) null
+  , seq int null
   
   , constraint menu_list_pk primary key (id)
 )
@@ -46,3 +47,45 @@ create table menu_list (
 Apa yang harus ada = divoid
 Sementara disarankan ada = leveloid, type
 
+                         
+menu_list
+id int identity (1,1)
+[name] 
+uri
+parent_id
+divoid
+leveloid
+type
+seq
+menu_id
+
+itg_folder                              
+folderoid                                                                 
+divoid                                   
+deptoid                                 
+leveloid                                 
+headfolder                              
+foldername                               
+divzip                                  
+createuser                              
+createtime                              
+lastupduser 
+lastupdatetime          
+type            
+seq 
+folderhidebudept
+
+
+itg_mstdept
+deptoid  
+divoid  
+deptcode    
+deptname                
+activeflag  
+createuser  
+createtime              
+lastupduser 
+lastupdatetime              
+deptdistcode
+
+(Untuk menu saat ini selesai)

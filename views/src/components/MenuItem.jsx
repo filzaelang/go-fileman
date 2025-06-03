@@ -8,6 +8,7 @@ import { router } from "@inertiajs/react";
 import ModalDeleteMenu from "./Modal/ModalDeleteMenu";
 import ModalAddMenu from "./Modal/ModalAddMenu";
 import ModalEditMenu from "./Modal/ModalEditMenu";
+import MenuItemSecond from "./MenuItemSecond";
 
 function MenuItem({ menu, level = 0, isEditable }) {
   const [open, setOpen] = useState(false);
@@ -52,10 +53,10 @@ function MenuItem({ menu, level = 0, isEditable }) {
               {menu.icon || <FaFolder className="icon-link" />}
               {menu.uri ? (
                 <Link className="text-link" href={menu.uri}>
-                  {menu.name}
+                  {menu.headfolder}
                 </Link>
               ) : (
-                <span className="text-link">{menu.name}</span>
+                <span className="text-link">{menu.headfolder}</span>
               )}
             </div>
           </div>
@@ -121,7 +122,7 @@ function MenuItem({ menu, level = 0, isEditable }) {
       {hasChildren && open && (
         <div className="ml-4">
           {menu.children.map((child, idx) => (
-            <MenuItem
+            <MenuItemSecond
               key={idx}
               menu={child}
               level={level + 1}

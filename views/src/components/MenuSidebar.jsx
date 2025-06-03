@@ -11,54 +11,55 @@ import { HiMiniUserGroup } from "react-icons/hi2";
 
 const staticMenus = [
   {
-    name: "Dashboard",
+    headfolder: "Dashboard",
     uri: "/dashboard",
     icon: <FaHome className="icon-link" />,
   },
   {
-    name: "Profile",
+    headfolder: "Profile",
     uri: "/profile",
     icon: <FaUser className="icon-link" />,
   },
   {
-    name: "Setup",
+    headfolder: "Setup",
     icon: <FaGears className="icon-link" />,
     children: [
       {
-        name: "Profile Authority",
+        foldername: "Profile Authority",
         uri: "/setup/profile-authority",
         icon: <HiMiniUserGroup className="icon-link" />,
       },
       {
-        name: "Folder Management",
+        foldername: "Folder Management",
         uri: "/setup/folder-management",
         icon: <FaFolderOpen className="icon-link" />,
       },
       {
-        name: "Department Management",
+        foldername: "Department Management",
         uri: "/setup/department-management",
         icon: <FaBuilding className="icon-link" />,
       },
       {
-        name: "Check files",
+        foldername: "Check files",
         uri: "/setup/check-files",
         icon: <FaBriefcase className="icon-link" />,
       },
     ],
   },
   {
-    name: "Favorites",
+    headfolder: "Favorites",
     uri: "/favorites",
     icon: <FaStar className="icon-link" />,
   },
   {
-    name: "All Files",
+    headfolder: "All Files",
     uri: "/allfiles",
     icon: <IoDocuments className="icon-link" />,
   },
 ];
 
 function MenuSidebar({ menus = [], role = "super admin" }) {
+  console.log("Ini menus", menus);
   return (
     <>
       {staticMenus.map((menu, index) => (
