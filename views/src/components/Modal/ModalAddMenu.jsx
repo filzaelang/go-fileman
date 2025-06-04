@@ -1,12 +1,13 @@
 import { RiCloseLine } from "react-icons/ri";
 import { useForm } from "@inertiajs/react";
 
-const ModalAddMenu = ({ setIsMAddOpen, onSubmit, id }) => {
+const ModalAddMenu = ({ setIsMAddOpen, onSubmit }) => {
   const { data, setData } = useForm({
     id: null,
+    folder_id: 73, //Organization Structure -> PT SUPERALAM MAS
+    div_id: 18,
     name: "",
-    uri: "",
-    parent_id: id,
+    user: "admin", //Seharusnya dari login
   });
 
   return (
@@ -44,17 +45,7 @@ const ModalAddMenu = ({ setIsMAddOpen, onSubmit, id }) => {
                 type="text"
                 value={data.name}
                 onChange={(e) => setData("name", e.target.value)}
-                placeholder="Misal: Standard Procedure"
-                className="w-full px-3 py-2 text-gray-800 placeholder-gray-400 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
-              />
-              <label className="w-full text-gray-800 placeholder-gray-400">
-                Alamat Url:
-              </label>
-              <input
-                type="text"
-                value={data.uri}
-                onChange={(e) => setData("uri", e.target.value)}
-                placeholder="Misal: /standard-procedure"
+                placeholder=""
                 className="w-full px-3 py-2 text-gray-800 placeholder-gray-400 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
               />
             </form>

@@ -30,8 +30,8 @@ import (
 // }
 
 func ConfigureRoutes(e *echo.Echo) {
-	// apiGroupMenu := e.Group("/api/menus")
-	// api.RegisterMenuRoutes(apiGroupMenu)
+	apiGroupMenu := e.Group("/api/menus")
+	api.RegisterMenuRoutes(apiGroupMenu)
 	apiGroupFiles := e.Group("/api/files")
 	api.RegisterFileRoutes(apiGroupFiles)
 

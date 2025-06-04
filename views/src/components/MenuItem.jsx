@@ -51,21 +51,19 @@ function MenuItem({ menu, level = 0, isEditable }) {
             <div className="flex flex-row items-center gap-3">
               {menu.icon || <FaFolder className="icon-link" />}
               {menu.headfolder === "" ? (
-                <Link
-                  className="text-link"
-                  href={menu.uri ? menu.uri : "#"}
-                  disabled={hasChildren}
-                >
-                  {menu.name}
-                </Link>
-              ) : (
-                <Link
-                  className="text-link"
-                  href={menu.uri ? menu.uri : "#"}
-                  disabled={hasChildren}
-                >
+                menu.uri ? (
+                  <Link className="text-link" href={menu.uri}>
+                    {menu.name}
+                  </Link>
+                ) : (
+                  <span className="text-link">{menu.name}</span>
+                )
+              ) : menu.uri ? (
+                <Link className="text-link" href={menu.uri}>
                   {menu.headfolder}
                 </Link>
+              ) : (
+                <span className="text-link">{menu.headfolder}</span>
               )}
             </div>
           </div>
@@ -118,11 +116,7 @@ function MenuItem({ menu, level = 0, isEditable }) {
               />
             )}
             {isMAddOpen && (
-              <ModalAddMenu
-                setIsMAddOpen={setIsMAddOpen}
-                onSubmit={add}
-                id={menu.id}
-              />
+              <ModalAddMenu setIsMAddOpen={setIsMAddOpen} onSubmit={add} />
             )}
           </div>
         </div>

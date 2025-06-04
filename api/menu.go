@@ -16,6 +16,18 @@ func RegisterMenuRoutes(g *echo.Group) {
 		return c.JSON(http.StatusOK, menu_list)
 	})
 
+	g.POST("", func(c echo.Context) error {
+		var payload models.AddMenuPayload
+		if err := c.Bind(&payload); err != nil {
+			return c.String(http.StatusBadRequest, "Invalid input")
+		}
+		if err := models.InsertMenu(payload); err != nil {
+			return c.String(http.StatusInternalServerError, "Insert failed")
+		}
+		return c.Redirect(http.StatusSeeOther, "/")
+		// return c.Redirect(http.StatusSeeOther, c.Request().RequestURI)
+	})
+
 	// g.GET("", func(c echo.Context) error {
 	// 	flat, _ := models.GetFlatMenus()
 	// 	tree := models.BuildMenuTree(flat)
