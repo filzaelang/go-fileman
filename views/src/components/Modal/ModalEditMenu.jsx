@@ -2,28 +2,40 @@ import { RiCloseLine } from "react-icons/ri";
 import { useForm } from "@inertiajs/react";
 import { useState, useEffect } from "react";
 
-const ModalEditMenu = ({ setIsMEditOpen, onSubmit, id }) => {
+const ModalEditMenu = ({ setIsMEditOpen, menu, onSubmit }) => {
   const [loading, setLoading] = useState(true);
+  // hanya untuk folder di dalam budept
   const { data, setData } = useForm({
-    id: null,
+    div_id: menu.div_id,
+    dept_id: menu.dept_id,
     name: "",
-    uri: "",
-    parent_id: null,
+    user: "admin", //Seharusnya dari login
+    type: menu.type,
   });
+  console.log("Menu", menu);
 
   useEffect(() => {
-    fetch(`/api/menus/${id}`)
+    fetch("/api/menus/getone", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        folder_id: menu.folder_id,
+        div_id: menu.div_id,
+        dept_id: menu.dept_id,
+        type: menu.type,
+      }),
+    })
       .then((res) => res.json())
-      .then((menu) => {
-        setData({
-          id: menu.id,
-          name: menu.name,
-          uri: menu.uri,
-          parent_id: menu.parent_id,
-        });
+      .then((name) => {
+        setData((prev) => ({
+          ...prev,
+          name: name,
+        }));
         setLoading(false);
       });
-  }, [id, setData]);
+  }, [menu.folder_id, menu.div_id, menu.dept_id, setData]);
 
   if (loading) return null;
 
@@ -63,16 +75,6 @@ const ModalEditMenu = ({ setIsMEditOpen, onSubmit, id }) => {
                 value={data.name}
                 onChange={(e) => setData("name", e.target.value)}
                 placeholder="Misal: Standard Procedure"
-                className="w-full px-3 py-2 text-gray-800 placeholder-gray-400 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
-              />
-              <label className="w-full text-gray-800 placeholder-gray-400">
-                Alamat Url:
-              </label>
-              <input
-                type="text"
-                value={data.uri}
-                onChange={(e) => setData("uri", e.target.value)}
-                placeholder="Misal: /standard-procedure"
                 className="w-full px-3 py-2 text-gray-800 placeholder-gray-400 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
               />
             </form>

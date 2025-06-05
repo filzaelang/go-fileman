@@ -33,6 +33,15 @@ create table dept_list (
   , constraint dept_list_pk primary key (id)
 )
 
+create table folder_dept (
+    id int identity (1,1)
+  , folder_id int
+  , div_id int
+  , dept_id int
+
+  , constraint folder_dept_pk primary key (id)
+)
+
 create table bu_list (
     id int identity (1,1)
   , div_id int
@@ -42,14 +51,7 @@ create table bu_list (
   , constraint bu_list_pk primary key (id)
 )
 
-create table folder_dept (
-    id int identity (1,1)
-  , div_id int
-  , dept_id int
-  , folder_id int
 
-  , constraint folder_dept_pk primary key (id)
-)
 
 create table folder_bu (
     id int identity (1,1)

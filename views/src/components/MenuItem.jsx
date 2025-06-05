@@ -25,14 +25,14 @@ function MenuItem({ menu, level = 0, isEditable }) {
 
   const edit = (data) => {
     setIsMEditOpen(false);
-    router.put(`api/menus/${data.id}`, data, {
+    router.put(`api/menus`, data, {
       onSuccess: () => router.visit(window.location.pathname),
     });
   };
 
-  const remove = (id) => {
+  const remove = (data) => {
     setIsMDelOpen(false);
-    router.delete(`/api/menus/${id}`, {
+    router.post(`/api/menus/delete`, data, {
       onSuccess: () => router.visit(window.location.pathname),
     });
   };
@@ -86,8 +86,8 @@ function MenuItem({ menu, level = 0, isEditable }) {
             {isMDelOpen && (
               <ModalDeleteMenu
                 setIsMDelOpen={setIsMDelOpen}
+                menu={menu}
                 onDelete={remove}
-                id={menu.id}
               />
             )}
             {isEditable && (
@@ -102,11 +102,11 @@ function MenuItem({ menu, level = 0, isEditable }) {
             {isMEditOpen && (
               <ModalEditMenu
                 setIsMEditOpen={setIsMEditOpen}
+                menu={menu}
                 onSubmit={edit}
-                id={menu.id}
               />
             )}
-            {isEditable && (
+            {isEditable && level < 2 && (
               <FaPlus
                 className="text-gray-300 hidden sm:block"
                 onClick={(e) => {
@@ -116,7 +116,11 @@ function MenuItem({ menu, level = 0, isEditable }) {
               />
             )}
             {isMAddOpen && (
-              <ModalAddMenu setIsMAddOpen={setIsMAddOpen} onSubmit={add} />
+              <ModalAddMenu
+                setIsMAddOpen={setIsMAddOpen}
+                menu={menu}
+                onSubmit={add}
+              />
             )}
           </div>
         </div>

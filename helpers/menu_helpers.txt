@@ -1,0 +1,272 @@
+// package helpers
+
+// import (
+// 	"database/sql"
+// 	"file-manager/db"
+// 	"file-manager/models"
+
+// 	"fmt"
+// )
+
+// func GetHeadfolder(Headfolder string) (int, error) {
+// 	var folder_id int
+// 	headfolderRows := db.DB_DEV.QueryRow(`
+// 				select top 1 folder_id
+// 				from folder_list
+// 				where headfolder = @headfolder
+// 					and name = @headfolder
+// 			`, sql.Named("headfolder", Headfolder))
+// 	err := headfolderRows.Scan(&folder_id)
+// 	if err != nil {
+// 		return 0, err
+// 	}
+// 	return folder_id, nil
+// }
+
+// func GetSubFolder(Headfolder string) ([]*models.MenuSidebar, error) {
+// 	childRows, err := db.DB_DEV.Query(`
+// 			select name, folder_id
+// 			from folder_list
+// 			where headfolder = @headfolder
+// 				and headfolder != name`,
+// 		sql.Named("headfolder", Headfolder),
+// 	)
+// 	if err != nil {
+// 		return nil, err
+// 	}
+
+// 	var children []*models.MenuSidebar
+
+// 	for childRows.Next() {
+// 		var child models.MenuSidebar
+// 		var folder_id int
+// 		if err := childRows.Scan(&child.Name, &folder_id); err != nil {
+// 			return nil, err // continue
+// 		}
+// 		child.Uri = fmt.Sprintf("/folder/%d/0/0", folder_id)
+// 		child.Folder_id = folder_id
+// 		child.Div_id = 0
+// 		child.Dept_id = 0
+// 		children = append(children, &child)
+// 	}
+// 	childRows.Close()
+
+// 	return children, nil
+// }
+
+// func GetBuFolder(Headfolder string) ([]*models.MenuSidebar, error) {
+// 	var children []*models.MenuSidebar
+
+// 	var divIdList []int
+// 	divIdListRows, err := db.DB_DEV.Query(`
+// 		select distinct div_id, seq
+// 		from bu_list
+// 		where div_id in (
+// 			select distinct div_id
+// 			from folder_bu
+// 			where folder_id in (
+// 				select top 1 folder_id
+// 				from folder_list
+// 				where headfolder = @headfolder
+// 			)
+// 		)
+// 		order by seq asc
+// 	`, sql.Named("headfolder", Headfolder))
+// 	if err != nil {
+// 		return nil, err
+// 	}
+// 	for divIdListRows.Next() {
+// 		var div_id int
+// 		var seq int
+// 		if err := divIdListRows.Scan(&div_id, &seq); err != nil {
+// 			return nil, err
+// 		}
+// 		divIdList = append(divIdList, div_id)
+// 	}
+// 	divIdListRows.Close()
+
+// 	var buChildren []models.BuFolderChild
+// 	for _, div_id := range divIdList {
+// 		buChildRows, err := db.DB_MIS.Query(`
+// 					select divoid, divname
+// 					from QL_mstdivision
+// 					where activeFlag = 'ACTIVE'
+// 						and divoid = @divoid
+// 					order by divoid asc
+// 				`, sql.Named("divoid", div_id))
+// 		if err != nil {
+// 			return nil, err
+// 		}
+
+// 		for buChildRows.Next() {
+// 			var bc models.BuFolderChild
+// 			if err := buChildRows.Scan(&bc.Div_id, &bc.Name); err != nil {
+// 				return nil, err
+// 			}
+// 			buChildren = append(buChildren, bc)
+// 		}
+// 		buChildRows.Close()
+// 	}
+
+// 	folderRows, err := db.DB_DEV.Query(`
+// 		select folder_id from folder_list where headfolder = @headfolder
+// 	`, sql.Named("headfolder", Headfolder))
+// 	if err != nil {
+// 		return nil, err
+// 	}
+// 	defer folderRows.Close()
+
+// 	var folderIDs []int
+// 	for folderRows.Next() {
+// 		var id int
+// 		if err := folderRows.Scan(&id); err != nil {
+// 			return nil, err
+// 		}
+// 		folderIDs = append(folderIDs, id)
+// 	}
+
+// 	for _, bu := range buChildren {
+// 		for _, folderID := range folderIDs {
+// 			child := &models.MenuSidebar{
+// 				Name:      bu.Name,
+// 				Uri:       fmt.Sprintf("/folder/%d/%d/0", folderID, bu.Div_id),
+// 				Folder_id: folderID,
+// 				Div_id:    bu.Div_id,
+// 				Dept_id:   0,
+// 			}
+// 			children = append(children, child)
+// 		}
+// 	}
+
+// 	return children, nil
+// }
+
+// func GetBuDepthFolder(Headfolder string) ([]*models.MenuSidebar, error) {
+// 	var children []*models.MenuSidebar
+
+// 	var folder_id int
+// 	rowsFolderId := db.DB_DEV.QueryRow(`
+// 		select top 1 folder_id from folder_list where headfolder = @headfolder
+// 	`, sql.Named("headfolder", Headfolder))
+// 	err := rowsFolderId.Scan(&folder_id)
+// 	if err != nil {
+// 		return nil, err
+// 	}
+
+// 	var divIdList []int
+// 	divIdListRows, err := db.DB_DEV.Query(`
+// 		select distinct div_id, seq
+// 		from bu_list
+// 		where div_id in (
+// 			select distinct div_id
+// 			from folder_dept
+// 			where folder_id in (
+// 				select top 1 folder_id
+// 				from folder_list
+// 				where headfolder = @headfolder
+// 			)
+// 		)
+// 		order by seq asc
+// 	`, sql.Named("headfolder", Headfolder))
+// 	if err != nil {
+// 		return nil, err
+// 	}
+// 	for divIdListRows.Next() {
+// 		var div_id int
+// 		var seq int
+// 		if err := divIdListRows.Scan(&div_id, &seq); err != nil {
+// 			return nil, err
+// 		}
+// 		divIdList = append(divIdList, div_id)
+// 	}
+// 	divIdListRows.Close()
+
+// 	for _, div_id := range divIdList {
+// 		buRowsTwo, err := db.DB_MIS.Query(`
+// 					select divoid, divname
+// 					from QL_mstdivision
+// 					where activeFlag = 'ACTIVE'
+// 						and divoid = @divoid
+// 					order by divoid asc
+// 				`, sql.Named("divoid", div_id))
+// 		if err != nil {
+// 			return nil, err
+// 		}
+
+// 		for buRowsTwo.Next() {
+// 			var child models.MenuSidebar
+// 			var divid int
+// 			if err := buRowsTwo.Scan(&divid, &child.Name); err != nil {
+// 				return nil, err
+// 			}
+
+// 			var deptIdList []int
+// 			buRowsThree, err := db.DB_DEV.Query(`
+// 				select distinct dept_id
+// 				from folder_dept
+// 				where div_id = @div_id
+// 					and folder_id in (
+// 						select top 1 folder_id
+// 						from folder_list
+// 						where headfolder = @headfolder
+// 					)
+// 			`, sql.Named("div_id", div_id),
+// 				sql.Named("headfolder", Headfolder))
+// 			if err != nil {
+// 				return nil, err
+// 			}
+// 			for buRowsThree.Next() {
+// 				var dept int
+// 				if err := buRowsThree.Scan(&dept); err != nil {
+// 					return nil, err
+// 				}
+// 				deptIdList = append(deptIdList, dept)
+// 			}
+// 			buRowsThree.Close()
+
+// 			if len(deptIdList) > 0 {
+// 				buRowsFour, err := db.DB_DEV.Query(`
+// 							select dept_id, name
+// 							from dept_list
+// 							where div_id = @div_id
+// 								and activeflag = 'ACTIVE'
+// 								and dept_id in (
+// 									select distinct dept_id
+// 									from folder_dept
+// 									where div_id = @div_id
+// 										and folder_id in (
+// 											select top 1 folder_id
+// 											from folder_list
+// 											where headfolder = @headfolder
+// 										)
+// 								)
+// 							order by name asc
+// 						`, sql.Named("div_id", div_id),
+// 					sql.Named("headfolder", Headfolder))
+// 				if err != nil {
+// 					return nil, err
+// 				}
+
+// 				for buRowsFour.Next() {
+// 					var lastChild models.MenuSidebar
+// 					var dept_id int
+// 					if err := buRowsFour.Scan(&dept_id, &lastChild.Name); err != nil {
+// 						return nil, err
+// 					}
+// 					lastChild.Uri = fmt.Sprintf("/folder/%d/%d/%d", folder_id, div_id, dept_id)
+// 					lastChild.Folder_id = folder_id
+// 					lastChild.Div_id = divid
+// 					lastChild.Dept_id = dept_id
+// 					child.Folder_id = folder_id
+// 					child.Div_id = div_id
+// 					child.Dept_id = 0
+// 					child.Children = append(child.Children, &lastChild)
+// 				}
+// 				buRowsFour.Close()
+// 			}
+// 			children = append(children, &child)
+// 		}
+// 		buRowsTwo.Close()
+// 	}
+// 	return children, nil
+// }

@@ -16,6 +16,20 @@ func RegisterMenuRoutes(g *echo.Group) {
 		return c.JSON(http.StatusOK, menu_list)
 	})
 
+	g.POST("/getone", func(c echo.Context) error {
+		var payload models.UpdateMenuPayload
+		if err := c.Bind(&payload); err != nil {
+			return c.String(http.StatusBadRequest, "Invalid input")
+		}
+
+		name, err := models.GetOneMenu(payload)
+		if err != nil {
+			return c.String(http.StatusNotFound, "Menu not found")
+		}
+
+		return c.JSON(http.StatusOK, name)
+	})
+
 	g.POST("", func(c echo.Context) error {
 		var payload models.AddMenuPayload
 		if err := c.Bind(&payload); err != nil {
@@ -28,53 +42,36 @@ func RegisterMenuRoutes(g *echo.Group) {
 		// return c.Redirect(http.StatusSeeOther, c.Request().RequestURI)
 	})
 
-	// g.GET("", func(c echo.Context) error {
-	// 	flat, _ := models.GetFlatMenus()
-	// 	tree := models.BuildMenuTree(flat)
-	// 	return c.JSON(http.StatusOK, tree)
-	// })
+	g.PUT("", func(c echo.Context) error {
+		var payload models.UpdateMenuPayload
+		if err := c.Bind(&payload); err != nil {
+			return c.String(http.StatusBadRequest, "Invalid input")
+		}
+		if err := models.UpdateMenu(payload); err != nil {
+			return c.String(http.StatusInternalServerError, "Update failed")
+		}
+		return c.Redirect(http.StatusSeeOther, "/")
+		// return c.Redirect(http.StatusSeeOther, c.Request().RequestURI)
+	})
 
-	// g.GET("/:id", func(c echo.Context) error {
-	// 	id, _ := strconv.Atoi(c.Param("id"))
+	g.POST("/delete", func(c echo.Context) error {
+		var payload models.DeleteMenuPayload
 
-	// 	menu, err := models.GetOneMenu(id)
-	// 	if err != nil {
-	// 		return c.String(http.StatusNotFound, "Menu not found")
-	// 	}
+		if err := c.Bind(&payload); err != nil {
+			return c.String(http.StatusBadRequest, "Invalid input")
+		}
 
-	// 	return c.JSON(http.StatusOK, menu)
-	// })
+		if err := models.DeleteMenu(payload); err != nil {
+			return c.String(http.StatusInternalServerError, "Delete failed")
+		}
+		return c.Redirect(http.StatusSeeOther, "/")
+	})
 
-	// g.POST("", func(c echo.Context) error {
-	// 	var payload models.MenuItem
-	// 	if err := c.Bind(&payload); err != nil {
-	// 		return c.String(http.StatusBadRequest, "Invalid input")
-	// 	}
-	// 	if err := models.InsertMenu(payload); err != nil {
-	// 		return c.String(http.StatusInternalServerError, "Insert failed")
-	// 	}
-	// 	return c.Redirect(http.StatusSeeOther, "/")
-	// 	// return c.Redirect(http.StatusSeeOther, c.Request().RequestURI)
-	// })
-
-	// g.PUT("/:id", func(c echo.Context) error {
-	// 	var payload models.MenuItem
-	// 	if err := c.Bind(&payload); err != nil {
-	// 		return c.String(http.StatusBadRequest, "Invalid input")
-	// 	}
-	// 	payload.ID, _ = strconv.Atoi(c.Param("id"))
-	// 	if err := models.UpdateMenu(payload); err != nil {
-	// 		return c.String(http.StatusInternalServerError, "Update failed")
-	// 	}
-	// 	return c.Redirect(http.StatusSeeOther, "/")
-	// 	// return c.Redirect(http.StatusSeeOther, c.Request().RequestURI)
-	// })
-
-	// g.DELETE("/:id", func(c echo.Context) error {
-	// 	id, _ := strconv.Atoi(c.Param("id"))
-	// 	if err := models.DeleteMenu(id); err != nil {
-	// 		return c.String(http.StatusInternalServerError, "Delete failed")
-	// 	}
-	// 	return c.Redirect(http.StatusSeeOther, "/")
-	// })
+	g.GET("/bulist", func(c echo.Context) error {
+		bu_list, err := models.GetBUList()
+		if err != nil {
+			return c.String(http.StatusNotFound, "BU's not found")
+		}
+		return c.JSON(http.StatusOK, bu_list)
+	})
 }

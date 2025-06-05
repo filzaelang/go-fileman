@@ -1,14 +1,37 @@
 import { RiCloseLine } from "react-icons/ri";
 import { useForm } from "@inertiajs/react";
+import { useState, useEffect } from "react";
 
-const ModalAddMenu = ({ setIsMAddOpen, onSubmit }) => {
+const ModalAddMenu = ({ setIsMAddOpen, menu, onSubmit }) => {
+  const [loading, setLoading] = useState(true);
+  const [BUList, setBUList] = useState(null); //tipenya array of object
+
   const { data, setData } = useForm({
-    id: null,
-    folder_id: 73, //Organization Structure -> PT SUPERALAM MAS
-    div_id: 18,
+    folder_id: menu.folder_id,
+    div_id: menu.div_id,
     name: "",
     user: "admin", //Seharusnya dari login
+    type: menu.type,
   });
+
+  const { dataBU, setDataBU } = useForm({
+    folder_id: menu.folder_id,
+    div_id: 0,
+    name: "",
+    user: "admin", //Seharusnya dari login
+    type: menu.type,
+  });
+
+  useEffect(() => {
+    fetch("/api/menus/bulist")
+      .then((res) => res.json())
+      .then((bulist) => {
+        setBUList(bulist);
+        setLoading(false);
+      });
+  }, [setBUList]);
+
+  if (loading) return null;
 
   return (
     <>
@@ -40,21 +63,53 @@ const ModalAddMenu = ({ setIsMAddOpen, onSubmit }) => {
               <label className="w-full text-gray-800 placeholder-gray-400">
                 Nama Menu:
               </label>
-              <input
-                name="name"
-                type="text"
-                value={data.name}
-                onChange={(e) => setData("name", e.target.value)}
-                placeholder=""
-                className="w-full px-3 py-2 text-gray-800 placeholder-gray-400 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
-              />
+              {menu.type === "budeptfolder" || menu.type === "bufolder" ? (
+                <select
+                  name="div_id"
+                  value={dataBU.div_id}
+                  onChange={(e) => {
+                    const selectedDivId = parseInt(e.target.value);
+                    const selectedBU = BUList.find(
+                      (bu) => bu.div_id === selectedDivId
+                    );
+                    if (selectedBU) {
+                      setDataBU((prev) => ({
+                        ...prev,
+                        div_id: selectedBU.div_id,
+                        name: selectedBU.div_name,
+                      }));
+                    }
+                  }}
+                  className="w-full px-3 py-2 border rounded-md text-gray-800"
+                >
+                  <option value="">-- Pilih BU --</option>
+                  {BUList?.map((bu) => (
+                    <option key={bu.div_id} value={bu.div_id}>
+                      {bu.div_name}
+                    </option>
+                  ))}
+                </select>
+              ) : (
+                <input
+                  name="name"
+                  type="text"
+                  value={data.name}
+                  onChange={(e) => setData("name", e.target.value)}
+                  placeholder=""
+                  className="w-full px-3 py-2 text-gray-800 placeholder-gray-400 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+                />
+              )}
             </form>
           </div>
 
           {/* Actions */}
           <div className="flex justify-around pb-4">
             <button
-              onClick={() => onSubmit(data)}
+              onClick={() => {
+                menu.type === "budeptfolder" || menu.type === "bufolder"
+                  ? onSubmit(dataBU)
+                  : onSubmit(data);
+              }}
               className="bg-blue-500 text-white px-6 py-2 text-sm font-semibold rounded-lg hover:bg-blue-600 transition"
             >
               Submit
