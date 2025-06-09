@@ -5,31 +5,42 @@ import { useState, useEffect } from "react";
 const ModalAddMenu = ({ setIsMAddOpen, menu, onSubmit }) => {
   const [loading, setLoading] = useState(true);
   const [BUList, setBUList] = useState(null); //tipenya array of object
+  console.log("Ini data ModalAddMenu", menu);
 
   const { data, setData } = useForm({
-    folder_id: menu.folder_id,
-    div_id: menu.div_id,
+    folderoid: menu.folderoid,
+    divoid: menu.divoid,
     name: "",
     user: "admin", //Seharusnya dari login
     type: menu.type,
   });
 
-  const { dataBU, setDataBU } = useForm({
-    folder_id: menu.folder_id,
-    div_id: 0,
-    name: "",
-    user: "admin", //Seharusnya dari login
-    type: menu.type,
-  });
+  // const { dataBU, setDataBU } = useForm({
+  //   folder_id: menu.folder_id,
+  //   divoid: 0,
+  //   name: "",
+  //   user: "admin", //Seharusnya dari login
+  //   type: menu.type,
+  // });
+
+  // console.log("Ini dataBU", dataBU);
 
   useEffect(() => {
-    fetch("/api/menus/bulist")
+    fetch("/api/menus/bulist", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        folderoid: menu.folderoid,
+      }),
+    })
       .then((res) => res.json())
       .then((bulist) => {
         setBUList(bulist);
         setLoading(false);
       });
-  }, [setBUList]);
+  }, [setBUList, menu.folderoid]);
 
   if (loading) return null;
 
@@ -65,27 +76,27 @@ const ModalAddMenu = ({ setIsMAddOpen, menu, onSubmit }) => {
               </label>
               {menu.type === "budeptfolder" || menu.type === "bufolder" ? (
                 <select
-                  name="div_id"
-                  value={dataBU.div_id}
+                  name="divoid"
+                  value={data.divoid}
                   onChange={(e) => {
                     const selectedDivId = parseInt(e.target.value);
                     const selectedBU = BUList.find(
-                      (bu) => bu.div_id === selectedDivId
+                      (bu) => bu.divoid === selectedDivId
                     );
                     if (selectedBU) {
-                      setDataBU((prev) => ({
-                        ...prev,
-                        div_id: selectedBU.div_id,
-                        name: selectedBU.div_name,
-                      }));
+                      setData({
+                        ...data,
+                        divoid: selectedBU.divoid,
+                        name: selectedBU.divname,
+                      });
                     }
                   }}
                   className="w-full px-3 py-2 border rounded-md text-gray-800"
                 >
                   <option value="">-- Pilih BU --</option>
                   {BUList?.map((bu) => (
-                    <option key={bu.div_id} value={bu.div_id}>
-                      {bu.div_name}
+                    <option key={bu.divoid} value={bu.divoid}>
+                      {bu.divname}
                     </option>
                   ))}
                 </select>
@@ -106,9 +117,7 @@ const ModalAddMenu = ({ setIsMAddOpen, menu, onSubmit }) => {
           <div className="flex justify-around pb-4">
             <button
               onClick={() => {
-                menu.type === "budeptfolder" || menu.type === "bufolder"
-                  ? onSubmit(dataBU)
-                  : onSubmit(data);
+                onSubmit(data);
               }}
               className="bg-blue-500 text-white px-6 py-2 text-sm font-semibold rounded-lg hover:bg-blue-600 transition"
             >

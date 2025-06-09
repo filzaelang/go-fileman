@@ -4,52 +4,8 @@ import (
 	"database/sql"
 	"file-manager/db"
 	"fmt"
+	"slices"
 )
-
-type AddMenuPayload struct {
-	Folder_id int    `json:"folder_id"`
-	Div_id    int    `json:"div_id"`
-	Name      string `json:"name"`
-	User      string `json:"user"`
-	Type      string `json:"type"`
-}
-
-type DeleteMenuPayload struct {
-	Folder_id int    `json:"folder_id"`
-	Div_id    int    `json:"div_id"`
-	Dept_id   int    `json:"dept_id"`
-	Type      string `json:"type"`
-}
-
-type UpdateMenuPayload struct {
-	Div_id  int    `json:"div_id"`
-	Dept_id int    `json:"dept_id"`
-	Name    string `json:"name"`
-	User    string `json:"user"`
-	Type    string `json:"type"`
-}
-
-type MenuSidebar struct {
-	Headfolder string         `json:"headfolder"`
-	Name       string         `json:"name"`
-	Folder_id  int            `json:"folder_id"`
-	Div_id     int            `json:"div_id"`
-	Dept_id    int            `json:"dept_id"`
-	Uri        string         `json:"uri"`
-	Type       string         `json:"type"`
-	Seq        string         `json:"seq"`
-	Children   []*MenuSidebar `json:"children"`
-}
-
-type BuFolderChild struct {
-	Div_id int    `json:"div_id"`
-	Name   string `json:"name"`
-}
-
-type BUList struct {
-	Div_id   int    `json:"div_id"`
-	Div_name string `json:"div_name"`
-}
 
 var HEADFOLDER = "headfolder"
 var SUBFOLDER = "subfolder"
@@ -76,15 +32,15 @@ func GetSidebarMenu() ([]MenuSidebar, error) {
 
 		// Untuk type "headfolder"
 		if sm.Type == HEADFOLDER {
-			folder_id, err := GetHeadfolder(sm.Headfolder)
+			folderoid, err := GetHeadfolder(sm.Headfolder)
 			if err != nil {
 				return nil, err
 			}
-			sm.Uri = fmt.Sprintf("/folder/%d/0/0", folder_id)
+			sm.Uri = fmt.Sprintf("/folder/%d/0/0", folderoid)
 			sm.Name = sm.Headfolder
-			sm.Folder_id = folder_id
-			sm.Div_id = 0
-			sm.Dept_id = 0
+			sm.Folderoid = folderoid
+			sm.Divoid = 0
+			sm.Deptoid = 0
 		}
 
 		// Ambil semua children dari type "subfolder"
@@ -94,35 +50,35 @@ func GetSidebarMenu() ([]MenuSidebar, error) {
 				return nil, err
 			}
 			sm.Name = sm.Headfolder
-			sm.Folder_id = 0
-			sm.Div_id = 0
-			sm.Dept_id = 0
+			sm.Folderoid = 0
+			sm.Divoid = 0
+			sm.Deptoid = 0
 			sm.Children = children
 		}
 
 		// Ambil semua children dari type "bufolder"
 		if sm.Type == BUFOLDER {
-			children, err := GetBuFolder(sm.Headfolder)
+			children, folderoid, err := GetBuFolder(sm.Headfolder)
 			if err != nil {
 				return nil, err
 			}
 			sm.Name = sm.Headfolder
-			sm.Folder_id = 0
-			sm.Div_id = 0
-			sm.Dept_id = 0
+			sm.Folderoid = folderoid
+			sm.Divoid = 0
+			sm.Deptoid = 0
 			sm.Children = children
 		}
 
 		// Ambil semua children dari type "budeptfolder"
 		if sm.Type == BUDEPTFOLDER {
-			children, err := GetBuDepthFolder(sm.Headfolder)
+			children, folderoid, err := GetBuDepthFolder(sm.Headfolder)
 			if err != nil {
 				return nil, err
 			}
 			sm.Name = sm.Headfolder
-			sm.Folder_id = 0
-			sm.Div_id = 0
-			sm.Dept_id = 0
+			sm.Folderoid = folderoid
+			sm.Divoid = 0
+			sm.Deptoid = 0
 			sm.Children = children
 		}
 
@@ -133,23 +89,23 @@ func GetSidebarMenu() ([]MenuSidebar, error) {
 }
 
 func GetHeadfolder(Headfolder string) (int, error) {
-	var folder_id int
+	var folderoid int
 	headfolderRows := db.DB_DEV.QueryRow(`
-				select top 1 folder_id 
+				select top 1 folderoid 
 				from folder_list 
 				where headfolder = @headfolder
 					and name = @headfolder
 			`, sql.Named("headfolder", Headfolder))
-	err := headfolderRows.Scan(&folder_id)
+	err := headfolderRows.Scan(&folderoid)
 	if err != nil {
 		return 0, err
 	}
-	return folder_id, nil
+	return folderoid, nil
 }
 
 func GetSubFolder(Headfolder string) ([]*MenuSidebar, error) {
 	childRows, err := db.DB_DEV.Query(`
-			select name, folder_id
+			select name, folderoid
 			from folder_list
 			where headfolder = @headfolder
 				and headfolder != name`,
@@ -163,14 +119,14 @@ func GetSubFolder(Headfolder string) ([]*MenuSidebar, error) {
 
 	for childRows.Next() {
 		var child MenuSidebar
-		var folder_id int
-		if err := childRows.Scan(&child.Name, &folder_id); err != nil {
+		var folderoid int
+		if err := childRows.Scan(&child.Name, &folderoid); err != nil {
 			return nil, err // continue
 		}
-		child.Uri = fmt.Sprintf("/folder/%d/0/0", folder_id)
-		child.Folder_id = folder_id
-		child.Div_id = 0
-		child.Dept_id = 0
+		child.Uri = fmt.Sprintf("/folder/%d/0/0", folderoid)
+		child.Folderoid = folderoid
+		child.Divoid = 0
+		child.Deptoid = 0
 		child.Type = SUBFOLDER_CHILD
 		children = append(children, &child)
 	}
@@ -179,18 +135,18 @@ func GetSubFolder(Headfolder string) ([]*MenuSidebar, error) {
 	return children, nil
 }
 
-func GetBuFolder(Headfolder string) ([]*MenuSidebar, error) {
+func GetBuFolder(Headfolder string) ([]*MenuSidebar, int, error) {
 	var children []*MenuSidebar
 
 	var divIdList []int
 	divIdListRows, err := db.DB_DEV.Query(`
-		select distinct div_id, seq 
+		select distinct divoid, seq 
 		from bu_list 
-		where div_id in (
-			select distinct div_id 
+		where divoid in (
+			select distinct divoid 
 			from folder_bu 
-			where folder_id in (
-				select top 1 folder_id 
+			where folderoid in (
+				select top 1 folderoid 
 				from folder_list 
 				where headfolder = @headfolder
 			)
@@ -198,35 +154,35 @@ func GetBuFolder(Headfolder string) ([]*MenuSidebar, error) {
 		order by seq asc
 	`, sql.Named("headfolder", Headfolder))
 	if err != nil {
-		return nil, err
+		return nil, 0, err
 	}
 	for divIdListRows.Next() {
-		var div_id int
+		var divoid int
 		var seq int
-		if err := divIdListRows.Scan(&div_id, &seq); err != nil {
-			return nil, err
+		if err := divIdListRows.Scan(&divoid, &seq); err != nil {
+			return nil, 0, err
 		}
-		divIdList = append(divIdList, div_id)
+		divIdList = append(divIdList, divoid)
 	}
 	divIdListRows.Close()
 
 	var buChildren []BuFolderChild
-	for _, div_id := range divIdList {
+	for _, divoid := range divIdList {
 		buChildRows, err := db.DB_MIS.Query(`
 					select divoid, divname
 					from QL_mstdivision
 					where activeFlag = 'ACTIVE'
 						and divoid = @divoid
 					order by divoid asc
-				`, sql.Named("divoid", div_id))
+				`, sql.Named("divoid", divoid))
 		if err != nil {
-			return nil, err
+			return nil, 0, err
 		}
 
 		for buChildRows.Next() {
 			var bc BuFolderChild
-			if err := buChildRows.Scan(&bc.Div_id, &bc.Name); err != nil {
-				return nil, err
+			if err := buChildRows.Scan(&bc.Divoid, &bc.Name); err != nil {
+				return nil, 0, err
 			}
 			buChildren = append(buChildren, bc)
 		}
@@ -234,19 +190,21 @@ func GetBuFolder(Headfolder string) ([]*MenuSidebar, error) {
 	}
 
 	folderRows, err := db.DB_DEV.Query(`
-		select folder_id from folder_list where headfolder = @headfolder
+		select folderoid from folder_list where headfolder = @headfolder
 	`, sql.Named("headfolder", Headfolder))
 	if err != nil {
-		return nil, err
+		return nil, 0, err
 	}
 	defer folderRows.Close()
 
 	var folderIDs []int
+	var folderoid int
 	for folderRows.Next() {
 		var id int
 		if err := folderRows.Scan(&id); err != nil {
-			return nil, err
+			return nil, 0, err
 		}
+		folderoid = id
 		folderIDs = append(folderIDs, id)
 	}
 
@@ -254,143 +212,143 @@ func GetBuFolder(Headfolder string) ([]*MenuSidebar, error) {
 		for _, folderID := range folderIDs {
 			child := &MenuSidebar{
 				Name:      bu.Name,
-				Uri:       fmt.Sprintf("/folder/%d/%d/0", folderID, bu.Div_id),
-				Folder_id: folderID,
-				Div_id:    bu.Div_id,
-				Dept_id:   0,
+				Uri:       fmt.Sprintf("/folder/%d/%d/0", folderID, bu.Divoid),
+				Folderoid: folderID,
+				Divoid:    bu.Divoid,
+				Deptoid:   0,
 				Type:      BUDEPTFOLDER_CHILD,
 			}
 			children = append(children, child)
 		}
 	}
 
-	return children, nil
+	return children, folderoid, nil
 }
 
-func GetBuDepthFolder(Headfolder string) ([]*MenuSidebar, error) {
+func GetBuDepthFolder(Headfolder string) ([]*MenuSidebar, int, error) {
 	var children []*MenuSidebar
 
-	var folder_id int
+	var folderoid int
 	rowsFolderId := db.DB_DEV.QueryRow(`
-		select top 1 folder_id from folder_list where headfolder = @headfolder
+		select top 1 folderoid from folder_list where headfolder = @headfolder
 	`, sql.Named("headfolder", Headfolder))
-	err := rowsFolderId.Scan(&folder_id)
+	err := rowsFolderId.Scan(&folderoid)
 	if err != nil {
-		return nil, err
+		return nil, 0, err
 	}
 
 	var divIdList []int
 	divIdListRows, err := db.DB_DEV.Query(`
-		select distinct div_id, seq
+		select distinct divoid, seq
 		from bu_list
-		where div_id in (
-			select distinct div_id
+		where divoid in (
+			select distinct divoid
 			from folder_dept
-			where folder_id = @folder_id
+			where folderoid = @folderoid
 		)
 		order by seq asc
-	`, sql.Named("folder_id", folder_id))
+	`, sql.Named("folderoid", folderoid))
 	if err != nil {
-		return nil, err
+		return nil, 0, err
 	}
 	for divIdListRows.Next() {
-		var div_id int
+		var divoid int
 		var seq int
-		if err := divIdListRows.Scan(&div_id, &seq); err != nil {
-			return nil, err
+		if err := divIdListRows.Scan(&divoid, &seq); err != nil {
+			return nil, 0, err
 		}
-		divIdList = append(divIdList, div_id)
+		divIdList = append(divIdList, divoid)
 	}
 	divIdListRows.Close()
 
-	for _, div_id := range divIdList {
+	for _, divoid := range divIdList {
 		buRowsTwo, err := db.DB_MIS.Query(`
 					select divoid, divname
 					from QL_mstdivision
 					where activeFlag = 'ACTIVE'
 						and divoid = @divoid
 					order by divoid asc
-				`, sql.Named("divoid", div_id))
+				`, sql.Named("divoid", divoid))
 		if err != nil {
-			return nil, err
+			return nil, 0, err
 		}
 
 		for buRowsTwo.Next() {
 			var child MenuSidebar
 			var divid int
 			if err := buRowsTwo.Scan(&divid, &child.Name); err != nil {
-				return nil, err
+				return nil, 0, err
 			}
 
-			child.Folder_id = folder_id
-			child.Div_id = div_id
-			child.Dept_id = 0
+			child.Folderoid = folderoid
+			child.Divoid = divoid
+			child.Deptoid = 0
 			child.Type = BUDEPTFOLDER_CHILD
 
 			// Sini untuk menambah menu lastchild budept
-			// var deptIdList []int
-			// buRowsThree, err := db.DB_DEV.Query(`
-			// 	select distinct dept_id
-			// 	from folder_dept
-			// 	where div_id = @div_id
-			// 		and folder_id = @folder_id
-			// `, sql.Named("div_id", div_id),
-			// 	sql.Named("folder_id", folder_id))
-			// if err != nil {
-			// 	return nil, err
-			// }
-			// for buRowsThree.Next() {
-			// 	var dept int
-			// 	if err := buRowsThree.Scan(&dept); err != nil {
-			// 		return nil, err
-			// 	}
-			// 	deptIdList = append(deptIdList, dept)
-			// }
-			// buRowsThree.Close()
+			var deptIdList []int
+			buRowsThree, err := db.DB_DEV.Query(`
+				select distinct deptoid
+				from folder_dept
+				where divoid = @divoid
+					and folderoid = @folderoid
+			`, sql.Named("divoid", divoid),
+				sql.Named("folderoid", folderoid))
+			if err != nil {
+				return nil, 0, err
+			}
+			for buRowsThree.Next() {
+				var dept int
+				if err := buRowsThree.Scan(&dept); err != nil {
+					return nil, 0, err
+				}
+				deptIdList = append(deptIdList, dept)
+			}
+			buRowsThree.Close()
 
-			// if len(deptIdList) > 0 {
-			// 	buRowsFour, err := db.DB_DEV.Query(`
-			// 				select dept_id, name
-			// 				from dept_list
-			// 				where div_id = @div_id
-			// 					and activeflag = 'ACTIVE'
-			// 					and dept_id in (
-			// 						select distinct dept_id
-			// 						from folder_dept
-			// 						where div_id = @div_id
-			// 							and folder_id in (
-			// 								select top 1 folder_id
-			// 								from folder_list
-			// 								where headfolder = @headfolder
-			// 							)
-			// 					)
-			// 				order by name asc
-			// 			`, sql.Named("div_id", div_id),
-			// 		sql.Named("headfolder", Headfolder))
-			// 	if err != nil {
-			// 		return nil, err
-			// 	}
+			if len(deptIdList) > 0 {
+				buRowsFour, err := db.DB_DEV.Query(`
+							select deptoid, name
+							from dept_list
+							where divoid = @divoid
+								and activeflag = 'ACTIVE'
+								and deptoid in (
+									select distinct deptoid
+									from folder_dept
+									where divoid = @divoid
+										and folderoid in (
+											select top 1 folderoid
+											from folder_list
+											where headfolder = @headfolder
+										)
+								)
+							order by name asc
+						`, sql.Named("divoid", divoid),
+					sql.Named("headfolder", Headfolder))
+				if err != nil {
+					return nil, 0, err
+				}
 
-			// 	for buRowsFour.Next() {
-			// 		var lastChild MenuSidebar
-			// 		var dept_id int
-			// 		if err := buRowsFour.Scan(&dept_id, &lastChild.Name); err != nil {
-			// 			return nil, err
-			// 		}
-			// 		lastChild.Uri = fmt.Sprintf("/folder/%d/%d/%d", folder_id, div_id, dept_id)
-			// 		lastChild.Folder_id = folder_id
-			// 		lastChild.Div_id = divid
-			// 		lastChild.Dept_id = dept_id
-			// 		lastChild.Type = BUDEPTFOLDER_LAST_CHILD
-			// 		child.Children = append(child.Children, &lastChild)
-			// 	}
-			// 	buRowsFour.Close()
-			// }
+				for buRowsFour.Next() {
+					var lastChild MenuSidebar
+					var dept_id int
+					if err := buRowsFour.Scan(&dept_id, &lastChild.Name); err != nil {
+						return nil, 0, err
+					}
+					lastChild.Uri = fmt.Sprintf("/folder/%d/%d/%d", folderoid, divoid, dept_id)
+					lastChild.Folderoid = folderoid
+					lastChild.Divoid = divid
+					lastChild.Deptoid = dept_id
+					lastChild.Type = BUDEPTFOLDER_LAST_CHILD
+					child.Children = append(child.Children, &lastChild)
+				}
+				buRowsFour.Close()
+			}
 			children = append(children, &child)
 		}
 		buRowsTwo.Close()
 	}
-	return children, nil
+	return children, folderoid, nil
 }
 
 func GetOneMenu(payload UpdateMenuPayload) (string, error) {
@@ -400,11 +358,11 @@ func GetOneMenu(payload UpdateMenuPayload) (string, error) {
 		row := db.DB_DEV.QueryRow(`
 		select top 1 name 
 		from dept_list 
-		where div_id = @div_id
-			and dept_id = @dept_id
+		where divoid = @divoid
+			and deptoid = @deptoid
 		`,
-			sql.Named("div_id", payload.Div_id),
-			sql.Named("dept_id", payload.Dept_id),
+			sql.Named("divoid", payload.Divoid),
+			sql.Named("deptoid", payload.Deptoid),
 		)
 
 		var name string
@@ -420,25 +378,72 @@ func GetOneMenu(payload UpdateMenuPayload) (string, error) {
 	return "", nil
 }
 
-func GetBUList() ([]BUList, error) {
+func GetBUList(payload FolderID) ([]BUList, error) {
 	var listBU []BUList
-	listBURows, err := db.DB_MIS.Query(`
-		select divoid, divname
-		from QL_mstdivision
-		where activeFlag = 'ACTIVE'
-		order by divoid asc 
-	`)
+
+	// Take folder which exist in this folder
+	var divIdList []int
+	divIdListRows, err := db.DB_DEV.Query(`
+		select distinct divoid, seq
+		from bu_list
+		where divoid in (
+			select distinct divoid
+			from folder_dept
+			where folderoid = @folderoid
+		)
+		order by seq asc
+	`, sql.Named("folderoid", payload.Folderoid))
 	if err != nil {
 		return nil, err
 	}
+	for divIdListRows.Next() {
+		var divoid int
+		var seq int
+		if err := divIdListRows.Scan(&divoid, &seq); err != nil {
+			return nil, err
+		}
+		divIdList = append(divIdList, divoid)
+	}
+	divIdListRows.Close()
+	// Take folder which exist in this folder
+
+	// Fetch only where divoid doesn exist
+	placeholders := ""
+	args := []interface{}{}
+	for i, id := range divIdList {
+		if i > 0 {
+			placeholders += ", "
+		}
+		placeholders += fmt.Sprintf("@id%d", i)
+		args = append(args, sql.Named(fmt.Sprintf("id%d", i), id))
+	}
+
+	query := `
+		select divoid, divname
+		from QL_mstdivision
+		where activeFlag = 'ACTIVE'`
+
+	// Filter not in if divoid exist
+	if len(divIdList) > 0 {
+		query += " and divoid not in (" + placeholders + ")"
+	}
+
+	query += " order by divoid asc"
+
+	listBURows, err := db.DB_MIS.Query(query, args...)
+	if err != nil {
+		return nil, err
+	}
+	defer listBURows.Close()
 
 	for listBURows.Next() {
 		var bu BUList
-		if err := listBURows.Scan(&bu.Div_id, &bu.Div_name); err != nil {
+		if err := listBURows.Scan(&bu.Divoid, &bu.Divname); err != nil {
 			return nil, err
 		}
 		listBU = append(listBU, bu)
 	}
+	// Fetch only where divoid doesn exist
 
 	return listBU, nil
 }
@@ -454,32 +459,157 @@ func InsertMenu(payload AddMenuPayload) error {
 		}
 	}()
 
-	// if it is folder inside budeptfolder
-	if payload.Type == BUDEPTFOLDER {
-
+	// if folder inside subfolder
+	if payload.Type == SUBFOLDER {
+		// Butuh folderoid (folder id terakhir + 1)
+		// Headfolder = didapat dari payload
+		// Name = didapat dari payload
+		// divzip ('Sementara isi CORP')
+		// c
 	}
+
+	//if folder inside bufolder
+	if payload.Type == BUFOLDER {
+		var div_list []int
+		var seq int
+
+		listBURows, err := db.DB_DEV.Query(`select divoid, seq from bu_list order by seq asc`)
+		if err != nil {
+			return err
+		}
+
+		for listBURows.Next() {
+			var divoid int
+			if err := listBURows.Scan(&divoid, &seq); err != nil {
+				return err
+			}
+			div_list = append(div_list, divoid)
+		}
+
+		// check if BU already exist in bu_list
+		if slices.Contains(div_list, payload.Divoid) {
+			// Do nothing
+		} else {
+			_, err := transaction.Exec(`
+				insert into bu_list (
+				  divoid 
+				, seq
+				, divname
+				) values (
+				  @divoid
+				, @seq
+				, @divname
+				)
+			`, sql.Named("divoid", payload.Divoid),
+				sql.Named("seq", seq+1),
+				sql.Named("divname", payload.Name))
+
+			if err != nil {
+				return err
+			}
+		}
+
+		_, err = transaction.Exec(`
+			insert into folder_bu (
+				divoid
+			  , folderoid
+			) values (
+			    @divoid
+			  , @folderoid
+			)
+		`, sql.Named("divoid", payload.Divoid),
+			sql.Named("folderoid", payload.Folderoid))
+		if err != nil {
+			return err
+		}
+
+		return transaction.Commit()
+	}
+
+	// if folder inside budeptfolder
+	if payload.Type == BUDEPTFOLDER {
+		var div_list []int
+		var seq int
+
+		listBURows, err := db.DB_DEV.Query(`select divoid, seq from bu_list order by seq asc`)
+		if err != nil {
+			return err
+		}
+
+		for listBURows.Next() {
+			var divoid int
+			if err := listBURows.Scan(&divoid, &seq); err != nil {
+				return err
+			}
+			div_list = append(div_list, divoid)
+		}
+
+		// check if BU already exist in bu_list
+		if slices.Contains(div_list, payload.Divoid) {
+			// Do nothing
+		} else {
+			_, err := transaction.Exec(`
+				insert into bu_list (
+				  divoid 
+				, seq
+				, divname
+				) values (
+				  @divoid
+				, @seq
+				, @divname
+				)
+			`, sql.Named("divoid", payload.Divoid),
+				sql.Named("seq", seq+1),
+				sql.Named("divname", payload.Name))
+
+			if err != nil {
+				return err
+			}
+		}
+
+		// add to folder_dept
+		_, err = transaction.Exec(`
+			insert into folder_dept (
+				  folderoid 
+				, divoid
+				, deptoid
+			) values (
+				  @folderoid
+				, @divoid
+				, @deptoid
+			)
+		`, sql.Named("folderoid", payload.Folderoid),
+			sql.Named("divoid", payload.Divoid),
+			sql.Named("deptoid", 0))
+		if err != nil {
+			return err
+		}
+
+		return transaction.Commit()
+	}
+
 	// if it is folder inside budeptfolder_child
 	if payload.Type == BUDEPTFOLDER_CHILD {
 
 		var lastDeptId int
 		lastDeptIdrow := db.DB_DEV.QueryRow(`
-			select top 1 dept_id from dept_list order by dept_id desc 
+			select top 1 deptoid from dept_list order by deptoid desc 
 		`)
 		err = lastDeptIdrow.Scan(&lastDeptId)
 		if err != nil {
 			return err
 		}
 
-		var folder_id = payload.Folder_id
-		var div_id = payload.Div_id
-		var dept_id = lastDeptId + 1
+		var folderoid = payload.Folderoid
+		var divoid = payload.Divoid
+		var deptoid = lastDeptId + 1
 		var name = payload.Name
 		var user = payload.User
 
 		_, err = transaction.Exec(`
 		insert into dept_list (
-		    dept_id
-		  , div_id
+		    deptoid
+		  , divoid
 		  , name
 		  , activeflag
 		  , createuser
@@ -487,8 +617,8 @@ func InsertMenu(payload AddMenuPayload) error {
 		  , lastupdateuser
 		  , lastupdatetime
 		) values (
-		 	@dept_id
-		  , @div_id
+		 	@deptoid
+		  , @divoid
 		  , @name
 		  , 'ACTIVE'
 		  , @user
@@ -497,8 +627,8 @@ func InsertMenu(payload AddMenuPayload) error {
 		  , getdate()
 		)
 		`,
-			sql.Named("dept_id", dept_id),
-			sql.Named("div_id", div_id),
+			sql.Named("deptoid", deptoid),
+			sql.Named("divoid", divoid),
 			sql.Named("name", name),
 			sql.Named("user", user),
 		)
@@ -506,21 +636,55 @@ func InsertMenu(payload AddMenuPayload) error {
 			return err
 		}
 
-		_, err = transaction.Exec(`
-		insert into folder_dept (
-			folder_id 
-		  , div_id
-		  , dept_id
-		) values (
-		    @folder_id
-		  , @div_id
-		  , @dept_id
-		)
-	`, sql.Named("folder_id", folder_id),
-			sql.Named("div_id", div_id),
-			sql.Named("dept_id", dept_id))
+		// check if deptoid = 0 is exist in the current directory
+		var check_dept_id int
+		checkRows := transaction.QueryRow(`
+			select top 1 deptoid
+			from folder_dept
+			where folderoid = @folderoid
+				and divoid = @divoid
+			order by id asc
+		`, sql.Named("folderoid", payload.Folderoid),
+			sql.Named("divoid", payload.Divoid))
+
+		err = checkRows.Scan(&check_dept_id)
 		if err != nil {
 			return err
+		}
+
+		args := []interface{}{
+			sql.Named("folderoid", folderoid),
+			sql.Named("divoid", divoid),
+			sql.Named("deptoid", deptoid),
+		}
+
+		if check_dept_id == 0 {
+			args = append(args, sql.Named("check_dept_id", check_dept_id))
+			_, err = transaction.Exec(`
+				update folder_dept
+				set deptoid = @deptoid
+				where folderoid = @folderoid
+					and divoid = @divoid
+					and deptoid = @check_dept_id
+			`, args...)
+			if err != nil {
+				return err
+			}
+		} else {
+			_, err = transaction.Exec(`
+				insert into folder_dept (
+				  folderoid 
+				, divoid
+				, deptoid
+				) values (
+				  @folderoid
+				, @divoid
+				, @deptoid
+				)
+			`, args...)
+			if err != nil {
+				return err
+			}
 		}
 
 		return transaction.Commit()
@@ -537,12 +701,12 @@ func UpdateMenu(payload UpdateMenuPayload) error {
 		set name = @name
 		  , lastupdateuser = @user
 		  , lastupdatetime = getdate()
-		where div_id = @div_id
-			and dept_id = @dept_id
+		where divoid = @divoid
+			and deptoid = @deptoid
 	`, sql.Named("name", payload.Name),
 			sql.Named("user", payload.User),
-			sql.Named("div_id", payload.Div_id),
-			sql.Named("dept_id", payload.Dept_id))
+			sql.Named("divoid", payload.Divoid),
+			sql.Named("deptoid", payload.Deptoid))
 
 		return err
 	}
@@ -566,12 +730,12 @@ func DeleteMenu(payload DeleteMenuPayload) error {
 
 		_, err = transaction.Exec(`
 		delete from folder_dept 
-		where folder_id = @folder_id
-			and div_id = @div_id
-			and dept_id = @dept_id`,
-			sql.Named("folder_id", payload.Folder_id),
-			sql.Named("div_id", payload.Div_id),
-			sql.Named("dept_id", payload.Dept_id),
+		where folderoid = @folderoid
+			and divoid = @divoid
+			and deptoid = @deptoid`,
+			sql.Named("folderoid", payload.Folderoid),
+			sql.Named("divoid", payload.Divoid),
+			sql.Named("deptoid", payload.Deptoid),
 		)
 		if err != nil {
 			return err
@@ -579,10 +743,10 @@ func DeleteMenu(payload DeleteMenuPayload) error {
 
 		_, err = transaction.Exec(`
 		delete from dept_list
-		where div_id = @div_id
-			and dept_id = @dept_id
-	`, sql.Named("div_id", payload.Div_id),
-			sql.Named("dept_id", payload.Dept_id))
+		where divoid = @divoid
+			and deptoid = @deptoid
+	`, sql.Named("divoid", payload.Divoid),
+			sql.Named("deptoid", payload.Deptoid))
 		if err != nil {
 			return err
 		}

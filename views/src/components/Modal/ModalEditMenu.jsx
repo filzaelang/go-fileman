@@ -6,8 +6,8 @@ const ModalEditMenu = ({ setIsMEditOpen, menu, onSubmit }) => {
   const [loading, setLoading] = useState(true);
   // hanya untuk folder di dalam budept
   const { data, setData } = useForm({
-    div_id: menu.div_id,
-    dept_id: menu.dept_id,
+    divoid: menu.divoid,
+    deptoid: menu.deptoid,
     name: "",
     user: "admin", //Seharusnya dari login
     type: menu.type,
@@ -22,8 +22,8 @@ const ModalEditMenu = ({ setIsMEditOpen, menu, onSubmit }) => {
       },
       body: JSON.stringify({
         folder_id: menu.folder_id,
-        div_id: menu.div_id,
-        dept_id: menu.dept_id,
+        divoid: menu.divoid,
+        deptoid: menu.deptoid,
         type: menu.type,
       }),
     })
@@ -35,7 +35,7 @@ const ModalEditMenu = ({ setIsMEditOpen, menu, onSubmit }) => {
         }));
         setLoading(false);
       });
-  }, [menu.folder_id, menu.div_id, menu.dept_id, setData]);
+  }, [menu.folder_id, menu.divoid, menu.deptoid, menu.type, setData]);
 
   if (loading) return null;
 

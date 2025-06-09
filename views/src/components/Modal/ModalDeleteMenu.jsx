@@ -4,9 +4,9 @@ import { useForm } from "@inertiajs/react";
 
 const ModalDeleteMenu = ({ setIsMDelOpen, menu, onDelete }) => {
   const { data } = useForm({
-    folder_id: menu.folder_id,
-    div_id: menu.div_id,
-    dept_id: menu.dept_id,
+    folderoid: menu.folderoid,
+    divoid: menu.divoid,
+    deptoid: menu.deptoid,
     type: menu.type,
   });
   return (

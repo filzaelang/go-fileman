@@ -1,9 +1,9 @@
 create table folder_list (
     id int identity (1,1)
-  , folder_id int null
-  , div_id int
-  , dept_id int null
-  , level_id int
+  , folderoid int null
+  , divoid int
+  , deptoid int null
+  , leveloid int
   , headfolder varchar(30) null
   , [name] varchar(50) null
   , divzip varchar(20)
@@ -20,8 +20,8 @@ create table folder_list (
 
 create table dept_list (
     id int identity (1,1)
-  , dept_id int
-  , div_id int
+  , deptoid int
+  , divoid int
   , [name] varchar(50)
   , activeflag varchar(20)
   , createuser varchar(20)
@@ -35,16 +35,16 @@ create table dept_list (
 
 create table folder_dept (
     id int identity (1,1)
-  , folder_id int
-  , div_id int
-  , dept_id int
+  , folderoid int
+  , divoid int
+  , deptoid int
 
   , constraint folder_dept_pk primary key (id)
 )
 
 create table bu_list (
     id int identity (1,1)
-  , div_id int
+  , divoid int
   , seq int
   , divname varchar(50)
 
@@ -55,8 +55,8 @@ create table bu_list (
 
 create table folder_bu (
     id int identity (1,1)
-  , div_id int
-  , folder_id int
+  , divoid int
+  , folderoid int
 
   , constraint folder_bu_pk primary key (id)
 )

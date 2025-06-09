@@ -67,8 +67,13 @@ func RegisterMenuRoutes(g *echo.Group) {
 		return c.Redirect(http.StatusSeeOther, "/")
 	})
 
-	g.GET("/bulist", func(c echo.Context) error {
-		bu_list, err := models.GetBUList()
+	g.POST("/bulist", func(c echo.Context) error {
+		var payload models.FolderID
+		if err := c.Bind(&payload); err != nil {
+			return c.String(http.StatusBadRequest, "Invalid input")
+		}
+
+		bu_list, err := models.GetBUList(payload)
 		if err != nil {
 			return c.String(http.StatusNotFound, "BU's not found")
 		}
