@@ -6,13 +6,14 @@ const ModalEditMenu = ({ setIsMEditOpen, menu, onSubmit }) => {
   const [loading, setLoading] = useState(true);
   // hanya untuk folder di dalam budept
   const { data, setData } = useForm({
+    folderoid: menu.folderoid,
     divoid: menu.divoid,
     deptoid: menu.deptoid,
-    name: "",
+    name: menu.name,
     user: "admin", //Seharusnya dari login
     type: menu.type,
   });
-  console.log("Menu", menu);
+  console.log("data", data);
 
   useEffect(() => {
     fetch("/api/menus/getone", {
@@ -21,7 +22,7 @@ const ModalEditMenu = ({ setIsMEditOpen, menu, onSubmit }) => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        folder_id: menu.folder_id,
+        folderoid: menu.folderoid,
         divoid: menu.divoid,
         deptoid: menu.deptoid,
         type: menu.type,
@@ -35,7 +36,7 @@ const ModalEditMenu = ({ setIsMEditOpen, menu, onSubmit }) => {
         }));
         setLoading(false);
       });
-  }, [menu.folder_id, menu.divoid, menu.deptoid, menu.type, setData]);
+  }, [menu.folderoid, menu.divoid, menu.deptoid, menu.type, setData]);
 
   if (loading) return null;
 

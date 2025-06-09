@@ -13,6 +13,7 @@ const ModalAddMenu = ({ setIsMAddOpen, menu, onSubmit }) => {
     name: "",
     user: "admin", //Seharusnya dari login
     type: menu.type,
+    headfolder: menu.headfolder,
   });
 
   // const { dataBU, setDataBU } = useForm({

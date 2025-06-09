@@ -1,7 +1,7 @@
 package api
 
 import (
-	"file-manager/models"
+	menu "file-manager/models/menu"
 	"net/http"
 
 	"github.com/labstack/echo/v4"
@@ -9,7 +9,7 @@ import (
 
 func RegisterMenuRoutes(g *echo.Group) {
 	g.GET("", func(c echo.Context) error {
-		menu_list, err := models.GetSidebarMenu()
+		menu_list, err := menu.GetSidebarMenu()
 		if err != nil {
 			return c.String(http.StatusNotFound, "Menu not found")
 		}
@@ -17,12 +17,12 @@ func RegisterMenuRoutes(g *echo.Group) {
 	})
 
 	g.POST("/getone", func(c echo.Context) error {
-		var payload models.UpdateMenuPayload
+		var payload menu.UpdateMenuPayload
 		if err := c.Bind(&payload); err != nil {
 			return c.String(http.StatusBadRequest, "Invalid input")
 		}
 
-		name, err := models.GetOneMenu(payload)
+		name, err := menu.GetOneMenu(payload)
 		if err != nil {
 			return c.String(http.StatusNotFound, "Menu not found")
 		}
@@ -31,11 +31,11 @@ func RegisterMenuRoutes(g *echo.Group) {
 	})
 
 	g.POST("", func(c echo.Context) error {
-		var payload models.AddMenuPayload
+		var payload menu.AddMenuPayload
 		if err := c.Bind(&payload); err != nil {
 			return c.String(http.StatusBadRequest, "Invalid input")
 		}
-		if err := models.InsertMenu(payload); err != nil {
+		if err := menu.InsertMenu(payload); err != nil {
 			return c.String(http.StatusInternalServerError, "Insert failed")
 		}
 		return c.Redirect(http.StatusSeeOther, "/")
@@ -43,11 +43,11 @@ func RegisterMenuRoutes(g *echo.Group) {
 	})
 
 	g.PUT("", func(c echo.Context) error {
-		var payload models.UpdateMenuPayload
+		var payload menu.UpdateMenuPayload
 		if err := c.Bind(&payload); err != nil {
 			return c.String(http.StatusBadRequest, "Invalid input")
 		}
-		if err := models.UpdateMenu(payload); err != nil {
+		if err := menu.UpdateMenu(payload); err != nil {
 			return c.String(http.StatusInternalServerError, "Update failed")
 		}
 		return c.Redirect(http.StatusSeeOther, "/")
@@ -55,25 +55,25 @@ func RegisterMenuRoutes(g *echo.Group) {
 	})
 
 	g.POST("/delete", func(c echo.Context) error {
-		var payload models.DeleteMenuPayload
+		var payload menu.DeleteMenuPayload
 
 		if err := c.Bind(&payload); err != nil {
 			return c.String(http.StatusBadRequest, "Invalid input")
 		}
 
-		if err := models.DeleteMenu(payload); err != nil {
+		if err := menu.DeleteMenu(payload); err != nil {
 			return c.String(http.StatusInternalServerError, "Delete failed")
 		}
 		return c.Redirect(http.StatusSeeOther, "/")
 	})
 
 	g.POST("/bulist", func(c echo.Context) error {
-		var payload models.FolderID
+		var payload menu.FolderID
 		if err := c.Bind(&payload); err != nil {
 			return c.String(http.StatusBadRequest, "Invalid input")
 		}
 
-		bu_list, err := models.GetBUList(payload)
+		bu_list, err := menu.GetBUList(payload)
 		if err != nil {
 			return c.String(http.StatusNotFound, "BU's not found")
 		}

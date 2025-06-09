@@ -1,11 +1,12 @@
-package models
+package models_menu
 
 type AddMenuPayload struct {
-	Folderoid int    `json:"folderoid"`
-	Divoid    int    `json:"divoid"`
-	Name      string `json:"name"`
-	User      string `json:"user"`
-	Type      string `json:"type"`
+	Folderoid  int     `json:"folderoid"`
+	Divoid     int     `json:"divoid"`
+	Name       string  `json:"name"`
+	User       string  `json:"user"`
+	Type       string  `json:"type"`
+	Headfolder *string `json:"headfolder"`
 }
 
 type DeleteMenuPayload struct {
@@ -16,11 +17,12 @@ type DeleteMenuPayload struct {
 }
 
 type UpdateMenuPayload struct {
-	Divoid  int    `json:"divoid"`
-	Deptoid int    `json:"deptoid"`
-	Name    string `json:"name"`
-	User    string `json:"user"`
-	Type    string `json:"type"`
+	Folderoid *int   `json:"folderoid"`
+	Divoid    *int   `json:"divoid"`
+	Deptoid   *int   `json:"deptoid"`
+	Name      string `json:"name"`
+	User      string `json:"user"`
+	Type      string `json:"type"`
 }
 
 type MenuSidebar struct {
@@ -48,4 +50,9 @@ type BUList struct {
 
 type FolderID struct {
 	Folderoid int `json:"folderoid"`
+}
+
+type SubFolderList struct {
+	Headfolder string `json:"headfolder"`
+	Seq        int    `json:"seq"`
 }

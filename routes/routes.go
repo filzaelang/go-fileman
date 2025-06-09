@@ -3,6 +3,7 @@ package routes
 import (
 	"file-manager/api"
 	"file-manager/models"
+	menu "file-manager/models/menu"
 	"log"
 	"net/http"
 
@@ -113,7 +114,7 @@ func renderWithMenus(ctx echo.Context, component string, phrase string, items []
 	// }
 	// tree := models.BuildMenuTree(flatMenus)
 	// PropagateFullURI(tree, "")
-	menus, err := models.GetSidebarMenu()
+	menus, err := menu.GetSidebarMenu()
 	if err != nil {
 		log.Fatal("Failed to load menus", err)
 	}
