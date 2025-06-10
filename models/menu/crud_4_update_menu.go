@@ -12,6 +12,8 @@ func UpdateMenu(payload UpdateMenuPayload) error {
 		_, err := db.DB_DEV.Exec(`
 		update folder_list
 		set [name] = @name
+		  , lastupdateuser = @user
+		  , lastupdatetime = getdate()
 		where folderoid = @folderoid
 		`, sql.Named("name", payload.Name),
 			sql.Named("folderoid", payload.Folderoid))

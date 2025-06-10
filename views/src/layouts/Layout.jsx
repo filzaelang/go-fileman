@@ -7,7 +7,7 @@ import { MdOutlineLogout } from "react-icons/md";
 import MenuSidebar from "../components/MenuSidebar";
 import { FaPlus } from "react-icons/fa";
 import { router } from "@inertiajs/react";
-import ModalAddMenu from "../components/Modal/ModalAddMenu";
+import ModalAddMenuBase from "../components/Modal/ModalAddMenuBase";
 
 export default function Layout({ children, menus, role }) {
   const [isMAddOpen, setIsMAddOpen] = useState(false);
@@ -57,10 +57,10 @@ export default function Layout({ children, menus, role }) {
             </div>
           ) : null}
           {isMAddOpen && (
-            <ModalAddMenu
+            <ModalAddMenuBase
               setIsMAddOpen={setIsMAddOpen}
+              menu={null}
               onSubmit={add}
-              id={null}
             />
           )}
         </div>

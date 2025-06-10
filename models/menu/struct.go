@@ -1,19 +1,21 @@
 package models_menu
 
 type AddMenuPayload struct {
-	Folderoid  int     `json:"folderoid"`
-	Divoid     int     `json:"divoid"`
-	Name       string  `json:"name"`
-	User       string  `json:"user"`
-	Type       string  `json:"type"`
-	Headfolder *string `json:"headfolder"`
+	Folderoid  int    `json:"folderoid"`
+	Divoid     int    `json:"divoid"`
+	Name       string `json:"name"`
+	User       string `json:"user"`
+	Type       string `json:"type"`
+	Headfolder string `json:"headfolder"`
+	IsBase     bool   `json:"isbase"`
 }
 
 type DeleteMenuPayload struct {
-	Folderoid int    `json:"folderoid"`
-	Divoid    int    `json:"divoid"`
-	Deptoid   int    `json:"deptoid"`
-	Type      string `json:"type"`
+	Folderoid  int    `json:"folderoid"`
+	Divoid     int    `json:"divoid"`
+	Deptoid    int    `json:"deptoid"`
+	Type       string `json:"type"`
+	Headfolder string `json:"headfolder"`
 }
 
 type UpdateMenuPayload struct {

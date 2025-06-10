@@ -90,15 +90,17 @@ function MenuItem({ menu, level = 0, isEditable }) {
                 onDelete={remove}
               />
             )}
-            {isEditable && (
-              <MdEdit
-                className="text-gray-300 hidden sm:block"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setIsMEditOpen(true);
-                }}
-              />
-            )}
+            {isEditable &&
+              menu.type !== "bufolder_child" &&
+              menu.type !== "budeptfolder_child" && (
+                <MdEdit
+                  className="text-gray-300 hidden sm:block"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setIsMEditOpen(true);
+                  }}
+                />
+              )}
             {isMEditOpen && (
               <ModalEditMenu
                 setIsMEditOpen={setIsMEditOpen}

@@ -8,6 +8,7 @@ const ModalDeleteMenu = ({ setIsMDelOpen, menu, onDelete }) => {
     divoid: menu.divoid,
     deptoid: menu.deptoid,
     type: menu.type,
+    headfolder: menu.headfolder,
   });
   return (
     <>

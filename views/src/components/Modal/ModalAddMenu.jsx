@@ -4,8 +4,7 @@ import { useState, useEffect } from "react";
 
 const ModalAddMenu = ({ setIsMAddOpen, menu, onSubmit }) => {
   const [loading, setLoading] = useState(true);
-  const [BUList, setBUList] = useState(null); //tipenya array of object
-  console.log("Ini data ModalAddMenu", menu);
+  const [BUList, setBUList] = useState(null);
 
   const { data, setData } = useForm({
     folderoid: menu.folderoid,
@@ -14,17 +13,8 @@ const ModalAddMenu = ({ setIsMAddOpen, menu, onSubmit }) => {
     user: "admin", //Seharusnya dari login
     type: menu.type,
     headfolder: menu.headfolder,
+    isbase: false,
   });
-
-  // const { dataBU, setDataBU } = useForm({
-  //   folder_id: menu.folder_id,
-  //   divoid: 0,
-  //   name: "",
-  //   user: "admin", //Seharusnya dari login
-  //   type: menu.type,
-  // });
-
-  // console.log("Ini dataBU", dataBU);
 
   useEffect(() => {
     fetch("/api/menus/bulist", {

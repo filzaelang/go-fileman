@@ -17,6 +17,81 @@ func InsertMenu(payload AddMenuPayload) error {
 		}
 	}()
 
+	// if folder not inside anywhere
+	if payload.IsBase {
+		var lastFolderoid int
+		lastFolderoidRows := transaction.QueryRow(`select top 1 folderoid from folder_list order by folderoid desc`)
+		err = lastFolderoidRows.Scan(&lastFolderoid)
+		if err != nil {
+			return err
+		}
+
+		var lastSeq int
+		lastSeqRows := transaction.QueryRow(`select distinct top 1 seq from folder_list order by seq desc`)
+		err = lastSeqRows.Scan(&lastSeq)
+		if err != nil {
+			return err
+		}
+
+		var folderoid = lastFolderoid + 1
+		var seq = lastSeq + 1
+		var folderhidebudept string
+		if payload.Type == "headfolder" || payload.Type == "subfolder" {
+			folderhidebudept = "Y"
+		} else {
+			folderhidebudept = "N"
+		}
+
+		_, err := transaction.Exec(`
+			insert into folder_list (
+				  folderoid
+				, divoid
+				, deptoid
+				, leveloid
+				, headfolder
+				, [name]
+				, divzip
+				, createuser
+				, createtime
+				, lastupdateuser
+				, lastupdatetime
+				, type
+				, seq
+				, folderhidebudept
+			) values (
+				  @folderoid
+				, @divoid
+				, @deptoid
+				, @leveloid
+				, @headfolder
+				, @name
+				, @divzip
+				, @user
+				, getdate()
+				, @user
+				, getdate()
+				, @type
+				, @seq
+				, @folderhidebudept
+			)
+			`, sql.Named("folderoid", folderoid),
+			sql.Named("divoid", 0),
+			sql.Named("deptoid", 0),
+			sql.Named("leveloid", 0),
+			sql.Named("headfolder", payload.Name),
+			sql.Named("name", payload.Name),
+			sql.Named("divzip", "CORP"), // Sementara otomatis isi "CORP"
+			sql.Named("user", payload.User),
+			sql.Named("type", payload.Type),
+			sql.Named("seq", seq),
+			sql.Named("folderhidebudept", folderhidebudept))
+		if err != nil {
+			return err
+		}
+
+		return transaction.Commit()
+	}
+
 	// if folder inside subfolder
 	if payload.Type == SUBFOLDER {
 		var lastFolderoid int
