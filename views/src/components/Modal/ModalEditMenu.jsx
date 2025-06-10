@@ -12,6 +12,7 @@ const ModalEditMenu = ({ setIsMEditOpen, menu, onSubmit }) => {
     name: menu.name,
     user: "admin", //Seharusnya dari login
     type: menu.type,
+    headfolder: menu.headfolder,
   });
   console.log("data", data);
 

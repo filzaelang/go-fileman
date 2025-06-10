@@ -19,12 +19,13 @@ type DeleteMenuPayload struct {
 }
 
 type UpdateMenuPayload struct {
-	Folderoid *int   `json:"folderoid"`
-	Divoid    *int   `json:"divoid"`
-	Deptoid   *int   `json:"deptoid"`
-	Name      string `json:"name"`
-	User      string `json:"user"`
-	Type      string `json:"type"`
+	Folderoid  *int   `json:"folderoid"`
+	Divoid     *int   `json:"divoid"`
+	Deptoid    *int   `json:"deptoid"`
+	Headfolder string `json:"headfolder"`
+	Name       string `json:"name"`
+	User       string `json:"user"`
+	Type       string `json:"type"`
 }
 
 type MenuSidebar struct {
