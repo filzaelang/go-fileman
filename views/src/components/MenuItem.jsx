@@ -108,7 +108,7 @@ function MenuItem({ menu, level = 0, isEditable }) {
                 onSubmit={edit}
               />
             )}
-            {isEditable && level < 2 && (
+            {isEditable && level < 2 && menu.type !== "bufolder_child" && (
               <FaPlus
                 className="text-gray-300 hidden sm:block"
                 onClick={(e) => {
