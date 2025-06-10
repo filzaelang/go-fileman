@@ -84,6 +84,11 @@ func AddMainMenu(payload AddMenuPayload, transaction *sql.Tx) error {
 		folderhidebudept = "N"
 	}
 
+	// cek apakah nama sudah ada atau belum
+	// rowsName, err := transaction.QueryRow(`
+	// 	insert into
+	// `)
+
 	_, err = transaction.Exec(`
 		insert into folder_list (
 			  folderoid

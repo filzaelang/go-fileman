@@ -68,7 +68,7 @@ func RegisterMenuRoutes(g *echo.Group) {
 	})
 
 	g.POST("/bulist", func(c echo.Context) error {
-		var payload menu.FolderID
+		var payload menu.BuChildList
 		if err := c.Bind(&payload); err != nil {
 			return c.String(http.StatusBadRequest, "Invalid input")
 		}

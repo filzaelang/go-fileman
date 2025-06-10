@@ -25,6 +25,7 @@ const ModalAddMenu = ({ setIsMAddOpen, menu, onSubmit }) => {
       },
       body: JSON.stringify({
         folderoid: menu.folderoid,
+        type: menu.type,
       }),
     })
       .then((res) => res.json())
@@ -32,7 +33,7 @@ const ModalAddMenu = ({ setIsMAddOpen, menu, onSubmit }) => {
         setBUList(bulist);
         setLoading(false);
       });
-  }, [setBUList, menu.folderoid]);
+  }, [setBUList, menu.folderoid, menu.type]);
 
   if (loading) return null;
 

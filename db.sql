@@ -16,6 +16,7 @@ create table folder_list (
   , folderhidebudept varchar(1) null
 
   , constraint folder_list_pk primary key (id)
+  , constraint folder_list_uq unique (folderoid)
 )
 
 create table dept_list (
@@ -31,6 +32,7 @@ create table dept_list (
   , deptdistcode varchar(20) null
 
   , constraint dept_list_pk primary key (id)
+  , constraint dept_list_uq unique (deptoid)
 )
 
 create table folder_dept (
@@ -52,11 +54,33 @@ create table bu_list (
 )
 
 
-
 create table folder_bu (
     id int identity (1,1)
   , divoid int
   , folderoid int
 
   , constraint folder_bu_pk primary key (id)
+)
+
+create table file_list (
+    id int identity (1,1)
+  , fileoid int
+  , divoid int
+  , deptoid int
+  , leveloid int
+  , folderoid int
+  , [filename] varchar(max)
+  , fileurl varchar(max)
+  , createuser varchar(30)
+  , createtime datetime
+  , lastupdateuser varchar(30)
+  , lastupdatetime datetime
+  , filenumber varchar(max)
+  , filerevnumber int
+  , filerevdate datetime
+  , fileoldnumber varchar(max) null
+  , filevisible varchar(5)
+
+  , constraint file_list_pk primary key (id)
+  , constraint file_list_uq unique (fileoid)
 )

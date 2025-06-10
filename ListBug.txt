@@ -1,0 +1,7 @@
+Bug di add submenu base juga muncul di anaknya
+Bug di front end belum ada validasi submit
+Bug di front end waktu add menu nama di budeptchild bisa meng enter nama folder yang sama
+Bug di front end waktu add menu di base bisa meng enter nama yang sama
+Kecil : submit ke api masih di component
+
+Sementara saat ini, tampilkan file di folder

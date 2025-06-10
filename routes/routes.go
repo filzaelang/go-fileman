@@ -10,34 +10,14 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-// Gabungkan dua path jadi /a/b (tanpa double slash)
-// func joinURI(base, uri string) string {
-// 	return strings.TrimRight(base, "/") + "/" + strings.TrimLeft(uri, "/")
-// }
-
-// func PropagateFullURI(nodes []*models.MenuItem, base string) {
-// 	for _, node := range nodes {
-// 		// Gunakan base + child path jika ada
-// 		if node.Uri != nil {
-// 			newUri := joinURI(base, *node.Uri)
-// 			node.Uri = &newUri
-// 		}
-
-// 		// Rekursi ke children
-// 		if len(node.Children) > 0 {
-// 			PropagateFullURI(node.Children, *node.Uri)
-// 		}
-// 	}
-// }
-
 func ConfigureRoutes(e *echo.Echo) {
 	apiGroupMenu := e.Group("/api/menus")
 	api.RegisterMenuRoutes(apiGroupMenu)
-	apiGroupFiles := e.Group("/api/files")
-	api.RegisterFileRoutes(apiGroupFiles)
+	apiGroupFolder := e.Group("/api/folder")
+	api.RegisterFileRoutes(apiGroupFolder)
 
-	// // Dynamic routes from DB
-	// e.GET("/*", dynamicMenuHandler)
+	// // Dynamic routes
+	// e.GET("/folder/:folderoid/:divoid/:deptoid", dynamicMenuHandler)
 
 	// Static Route
 	e.GET("/", func(ctx echo.Context) error {
@@ -79,28 +59,14 @@ func ConfigureRoutes(e *echo.Echo) {
 // func dynamicMenuHandler(ctx echo.Context) error {
 // 	requestedUri := ctx.Request().URL.Path
 
-// 	flatMenus, err := models.GetFlatMenus()
+// 	menus, err := menu.GetSidebarMenu()
 // 	if err != nil {
-// 		return ctx.String(http.StatusInternalServerError, "Gagal ambil menu")
-// 	}
-// 	tree := models.BuildMenuTree(flatMenus)
-// 	PropagateFullURI(tree, "")
-
-// 	var matched *models.MenuItem
-// 	for _, m := range flatMenus {
-// 		if m.Uri != nil && *m.Uri == requestedUri {
-// 			matched = &m
-// 			break
-// 		}
-// 	}
-
-// 	if matched == nil {
-// 		return ctx.String(http.StatusNotFound, "Halaman tidak ditemukan")
+// 		log.Fatal("Failed to load menus", err)
 // 	}
 
 // 	props := map[string]interface{}{
-// 		"phrase": matched.Name,
-// 		"menus":  tree,
+// 		"phrase": ,
+// 		"menus":  menus,
 // 		"role":   "super admin",
 // 	}
 
@@ -108,12 +74,6 @@ func ConfigureRoutes(e *echo.Echo) {
 // }
 
 func renderWithMenus(ctx echo.Context, component string, phrase string, items []models.FileItem) error {
-	// flatMenus, err := models.GetFlatMenus()
-	// if err != nil {
-	// 	log.Fatal("Failed to load dynamic routes:", err)
-	// }
-	// tree := models.BuildMenuTree(flatMenus)
-	// PropagateFullURI(tree, "")
 	menus, err := menu.GetSidebarMenu()
 	if err != nil {
 		log.Fatal("Failed to load menus", err)

@@ -51,8 +51,9 @@ type BUList struct {
 	Seq     *int   `json:"seq"`
 }
 
-type FolderID struct {
-	Folderoid int `json:"folderoid"`
+type BuChildList struct {
+	Folderoid int    `json:"folderoid"`
+	Type      string `json:"type"`
 }
 
 type SubFolderList struct {
