@@ -5,6 +5,7 @@ import { useState, useEffect } from "react";
 const ModalAddMenu = ({ setIsMAddOpen, menu, onSubmit }) => {
   const [loading, setLoading] = useState(true);
   const [BUList, setBUList] = useState(null);
+  console.log("menu", menu);
 
   const { data, setData } = useForm({
     folderoid: menu.folderoid,

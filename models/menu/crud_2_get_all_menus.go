@@ -206,7 +206,7 @@ func GetBuFolder(Headfolder string) ([]*MenuSidebar, int, error) {
 				Folderoid: folderID,
 				Divoid:    bu.Divoid,
 				Deptoid:   0,
-				Type:      BUDEPTFOLDER_CHILD,
+				Type:      BUFOLDER_CHILD,
 			}
 			children = append(children, child)
 		}
