@@ -2,6 +2,7 @@ package api
 
 import (
 	"file-manager/helpers"
+	"file-manager/models"
 	model_file "file-manager/models/file"
 	"fmt"
 	"net/http"
@@ -9,7 +10,6 @@ import (
 	"strconv"
 
 	"github.com/labstack/echo/v4"
-	// "path/filepath"
 )
 
 func RegisterFileRoutes(g *echo.Group) {
@@ -25,31 +25,53 @@ func RegisterFileRoutes(g *echo.Group) {
 			return c.String(http.StatusNotFound, "File not found on disk")
 		}
 
-		var filePathOut string
-
-		if ext == ".pdf" {
-			filePathOut = fmt.Sprintf("C:/FileManager/out/%s", fileName)
-		} else {
-			filePathOut = filePath
-		}
-
+		var filePathOut = filePath
 		var username = "admin"
 
-		err = helpers.AddPDFWatermark(filePath, filePathOut, username)
-		if err != nil {
-			return c.String(http.StatusInternalServerError, "Failed to apply watermark to the file")
+		if ext == ".pdf" {
+			filePathOut = fmt.Sprintf("C:/FileManager/%s", fileName)
+			err = helpers.AddPDFWatermark(filePath, filePathOut, username)
+			if err != nil {
+				return c.String(http.StatusInternalServerError, "Failed to apply watermark to the file")
+			}
 		}
 
 		file, err := os.Open(filePathOut)
 		if err != nil {
-			return err
+			return c.String(http.StatusInternalServerError, "Failed to open file")
 		}
 		defer file.Close()
 
-		// Set header agar PDF tampil di browser
-		// Ubah supaya dinamis, jika filenya pdf gunakan kode dibawah ini namun jika non pdf maka download
-		c.Response().Header().Set(echo.HeaderContentType, "application/pdf")
-		c.Response().Header().Set(echo.HeaderContentDisposition, `inline; filename="`+fileName+`"`)
-		return c.Stream(http.StatusOK, "application/pdf", file)
+		disposition := "attachment"
+		mimeType := helpers.DetectMimeType(ext)
+		if ext == ".pdf" {
+			disposition = "inline"
+			mimeType = "application/pdf"
+		}
+
+		c.Response().Header().Set(echo.HeaderContentDisposition, fmt.Sprintf(`%s; filename="%s"`, disposition, fileName))
+		c.Response().Header().Set(echo.HeaderContentType, mimeType)
+
+		if ext == ".pdf" {
+			go helpers.DeleteFile(filePathOut)
+		}
+
+		return c.Stream(http.StatusOK, mimeType, file)
+	})
+
+	g.POST("", func(c echo.Context) error {
+		// Parse multipart form
+		fileHeader, err := c.FormFile("file")
+		if err != nil {
+			return c.String(http.StatusBadRequest, "File tidak ditemukan")
+		}
+
+		result, err := models.Upload(fileHeader, c)
+
+		if err != nil {
+			return c.String(http.StatusInternalServerError, result)
+		}
+
+		return c.String(http.StatusOK, result)
 	})
 }

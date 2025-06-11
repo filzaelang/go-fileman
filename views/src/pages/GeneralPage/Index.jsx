@@ -193,7 +193,7 @@ function Index({ phrase, items, menus }) {
                           rel="noopener noreferrer"
                           className="bg-green-500 py-1 px-2 text-sm rounded-md text-white hover:bg-green-700 focus:ring-gray-700"
                         >
-                          Download PDF
+                          Download
                         </a>
                       </td>
                       <td className="p-4 border-b border-blue-gray-50">

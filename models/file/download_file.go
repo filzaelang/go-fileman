@@ -19,8 +19,7 @@ func FileDownloadHarian(id int) (string, string, string, error) {
 		where folderoid in
 			(select folderoid
 			from file_list
-			where fileoid = @id)
-		)`,
+			where fileoid = @id)`,
 		sql.Named("id", id),
 	)
 
@@ -29,7 +28,7 @@ func FileDownloadHarian(id int) (string, string, string, error) {
 		return "", "", "", err
 	}
 
-	row = db.DB.QueryRow(`
+	row = db.DB_DEV.QueryRow(`
 		select top 1 divoid, deptoid from file_list where fileoid = @id
 		`, sql.Named("id", id),
 	)
@@ -52,8 +51,8 @@ func FileDownloadHarian(id int) (string, string, string, error) {
 		}
 
 		if deptoid != 0 {
-			row := db.DB.QueryRow(`
-				select top 1 * from dept_list where divoid=@divoid and deptoid=@deptoid
+			row := db.DB_DEV.QueryRow(`
+				select top 1 [name] from dept_list where divoid=@divoid and deptoid=@deptoid
 			`, sql.Named("divoid", divoid),
 				sql.Named("deptoid", deptoid))
 
@@ -75,7 +74,7 @@ func FileDownloadHarian(id int) (string, string, string, error) {
 	}
 
 	var fileurl string
-	row = db.DB.QueryRow("select top 1 fileurl from file_list where fileoid = @id", sql.Named("id", id))
+	row = db.DB_DEV.QueryRow("select top 1 fileurl from file_list where fileoid = @id", sql.Named("id", id))
 	err = row.Scan(&fileurl)
 	if err != nil {
 		return "", "", "", err
