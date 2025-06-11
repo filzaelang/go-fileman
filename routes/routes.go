@@ -3,9 +3,11 @@ package routes
 import (
 	"file-manager/api"
 	"file-manager/models"
+	model_file "file-manager/models/file"
 	menu "file-manager/models/menu"
 	"log"
 	"net/http"
+	"strconv"
 
 	"github.com/labstack/echo/v4"
 )
@@ -13,11 +15,11 @@ import (
 func ConfigureRoutes(e *echo.Echo) {
 	apiGroupMenu := e.Group("/api/menus")
 	api.RegisterMenuRoutes(apiGroupMenu)
-	apiGroupFolder := e.Group("/api/folder")
-	api.RegisterFileRoutes(apiGroupFolder)
+	apiGroupFile := e.Group("/api/file")
+	api.RegisterFileRoutes(apiGroupFile)
 
-	// // Dynamic routes
-	// e.GET("/folder/:folderoid/:divoid/:deptoid", dynamicMenuHandler)
+	// Dynamic routes
+	e.GET("/folder/:folderoid/:divoid/:deptoid", dynamicMenuHandler)
 
 	// Static Route
 	e.GET("/", func(ctx echo.Context) error {
@@ -56,22 +58,34 @@ func ConfigureRoutes(e *echo.Echo) {
 	})
 }
 
-// func dynamicMenuHandler(ctx echo.Context) error {
-// 	requestedUri := ctx.Request().URL.Path
+func dynamicMenuHandler(ctx echo.Context) error {
+	folderoid, err1 := strconv.Atoi(ctx.Param("folderoid"))
+	divoid, err2 := strconv.Atoi(ctx.Param("divoid"))
+	deptoid, err3 := strconv.Atoi(ctx.Param("deptoid"))
 
-// 	menus, err := menu.GetSidebarMenu()
-// 	if err != nil {
-// 		log.Fatal("Failed to load menus", err)
-// 	}
+	if err1 != nil || err2 != nil || err3 != nil {
+		return ctx.String(http.StatusBadRequest, "Invalid route parameters")
+	}
 
-// 	props := map[string]interface{}{
-// 		"phrase": ,
-// 		"menus":  menus,
-// 		"role":   "super admin",
-// 	}
+	menus, err := menu.GetSidebarMenu()
+	if err != nil {
+		return ctx.String(http.StatusInternalServerError, "Failed to load menu")
+	}
 
-// 	return ctx.Render(http.StatusOK, "GeneralPage", props)
-// }
+	items, err := model_file.GetFile(folderoid, divoid, deptoid)
+	if err != nil {
+		return ctx.String(http.StatusInternalServerError, "Failed to load data")
+	}
+
+	props := map[string]interface{}{
+		"phrase": "Berikut daftar dokumen yang ditemukan",
+		"menus":  menus,
+		"role":   "super admin",
+		"items":  items,
+	}
+
+	return ctx.Render(http.StatusOK, "GeneralPage", props)
+}
 
 func renderWithMenus(ctx echo.Context, component string, phrase string, items []models.FileItem) error {
 	menus, err := menu.GetSidebarMenu()

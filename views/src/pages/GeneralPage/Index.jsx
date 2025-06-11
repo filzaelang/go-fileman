@@ -145,74 +145,82 @@ function Index({ phrase, items, menus }) {
                 </tr>
               </thead>
               <tbody>
-                {items.map((item, index) => (
-                  <tr key={index}>
-                    <td className="p-4 border-b border-blue-gray-50">
-                      <p className="block font-sans text-sm antialiased font-normal leading-normal text-blue-gray-900">
-                        V
-                      </p>
-                    </td>
-                    <td className="p-4 border-b border-blue-gray-50">
-                      <p className="block font-sans text-sm antialiased font-normal leading-normal text-blue-gray-900">
-                        {index + 1}
-                      </p>
-                    </td>
-                    <td className="p-4 border-b border-blue-gray-50">
-                      <p className="block font-sans text-sm antialiased font-normal leading-normal text-blue-gray-900">
-                        {item.filenumber}
-                      </p>
-                    </td>
-                    <td className="p-4 border-b border-blue-gray-50">
-                      <a
-                        href="#"
-                        className="block font-sans text-sm antialiased font-medium leading-normal text-blue-gray-900"
-                      >
-                        {item.fileoldnumber}
-                      </a>
-                    </td>
-                    <td className="p-4 border-b border-blue-gray-50">
-                      <p>{item.filename}</p>
-                    </td>
-                    <td className="p-4 border-b border-blue-gray-50">
-                      <p>{item.filerevnumber}</p>
-                    </td>
-                    <td className="p-4 border-b border-blue-gray-50">
-                      <p>{item.filerevdate}</p>
-                    </td>
-                    <td className="p-4 border-b border-blue-gray-50">
-                      <p>favorites</p>
-                    </td>
-                    <td className="p-4 border-b border-blue-gray-50">
-                      <p>{item.filevisible}</p>
-                    </td>
-                    <td className="p-4 border-b border-blue-gray-50">
-                      <a
-                        href={`/api/files/${item.fileoid}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="bg-green-500 py-1 px-2 text-sm rounded-md text-white hover:bg-green-700 focus:ring-gray-700"
-                      >
-                        Download PDF
-                      </a>
-                    </td>
-                    <td className="p-4 border-b border-blue-gray-50">
-                      <button className="bg-blue-500 py-1 px-2 text-sm rounded-md text-white hover:bg-blue-700">
-                        Edit
-                      </button>
-                    </td>
-                    <td className="p-4 border-b border-blue-gray-50">
-                      <button
-                        className="bg-red-500 py-1 px-2 text-sm rounded-md text-white hover:bg-red-700"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          deleteFile(item.fileoid);
-                        }}
-                      >
-                        Delete
-                      </button>
+                {items !== null ? (
+                  items.map((item, index) => (
+                    <tr key={index}>
+                      <td className="p-4 border-b border-blue-gray-50">
+                        <p className="block font-sans text-sm antialiased font-normal leading-normal text-blue-gray-900">
+                          V
+                        </p>
+                      </td>
+                      <td className="p-4 border-b border-blue-gray-50">
+                        <p className="block font-sans text-sm antialiased font-normal leading-normal text-blue-gray-900">
+                          {index + 1}
+                        </p>
+                      </td>
+                      <td className="p-4 border-b border-blue-gray-50">
+                        <p className="block font-sans text-sm antialiased font-normal leading-normal text-blue-gray-900">
+                          {item.filenumber}
+                        </p>
+                      </td>
+                      <td className="p-4 border-b border-blue-gray-50">
+                        <a
+                          href="#"
+                          className="block font-sans text-sm antialiased font-medium leading-normal text-blue-gray-900"
+                        >
+                          {item.fileoldnumber}
+                        </a>
+                      </td>
+                      <td className="p-4 border-b border-blue-gray-50">
+                        <p>{item.filename}</p>
+                      </td>
+                      <td className="p-4 border-b border-blue-gray-50">
+                        <p>{item.filerevnumber}</p>
+                      </td>
+                      <td className="p-4 border-b border-blue-gray-50">
+                        <p>{item.filerevdate}</p>
+                      </td>
+                      <td className="p-4 border-b border-blue-gray-50">
+                        <p>favorites</p>
+                      </td>
+                      <td className="p-4 border-b border-blue-gray-50">
+                        <p>{item.filevisible}</p>
+                      </td>
+                      <td className="p-4 border-b border-blue-gray-50">
+                        <a
+                          href={`/api/files/${item.fileoid}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="bg-green-500 py-1 px-2 text-sm rounded-md text-white hover:bg-green-700 focus:ring-gray-700"
+                        >
+                          Download PDF
+                        </a>
+                      </td>
+                      <td className="p-4 border-b border-blue-gray-50">
+                        <button className="bg-blue-500 py-1 px-2 text-sm rounded-md text-white hover:bg-blue-700">
+                          Edit
+                        </button>
+                      </td>
+                      <td className="p-4 border-b border-blue-gray-50">
+                        <button
+                          className="bg-red-500 py-1 px-2 text-sm rounded-md text-white hover:bg-red-700"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            deleteFile(item.fileoid);
+                          }}
+                        >
+                          Delete
+                        </button>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan="13" className="text-center py-4 text-gray-500">
+                      No data available
                     </td>
                   </tr>
-                ))}
+                )}
               </tbody>
             </table>
           </div>

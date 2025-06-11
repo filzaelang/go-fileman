@@ -10,7 +10,7 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-func RegisterFileRoutes(g *echo.Group) {
+func RegisterFileRoutesDummy(g *echo.Group) {
 	g.GET("/:id", func(c echo.Context) error {
 		id, _ := strconv.Atoi(c.Param("id"))
 

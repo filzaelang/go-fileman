@@ -3,19 +3,20 @@ package models_folder
 import (
 	"database/sql"
 	"file-manager/db"
+	model_file "file-manager/models/file"
 )
 
 type FolderData struct {
-	Title            string `json:"title"`
-	User             string `json:"user"`
-	Lap_harisan_saya string `json:"lap_harisan_saya"`
-	Folderhidebudept string `json:"folderhidebudept"`
-	Divoid           int    `json:"divoid"`
-	Deptoid          int    `json:"deptoid"`
-	Roleid           int    `json:"roleid"`
+	Title            string                `json:"title"`
+	User             string                `json:"user"`
+	Lap_harisan_saya []model_file.FileItem `json:"lap_harisan_saya"`
+	Folderhidebudept string                `json:"folderhidebudept"`
+	Divoid           int                   `json:"divoid"`
+	Deptoid          int                   `json:"deptoid"`
+	Roleid           int                   `json:"roleid"`
 }
 
-func Folder(id, divoid, deptoid int) (FolderData, error) {
+func Folder(folderoid, divoid, deptoid int) (FolderData, error) {
 	// $this->updlastact();
 	// $this->form_validation->set_rules('createuser', 'ID', 'required|trim');
 
@@ -24,12 +25,12 @@ func Folder(id, divoid, deptoid int) (FolderData, error) {
 
 	row := db.DB.QueryRow(`
 		select top 1 
-			  foldername
+			  [name]
 			, headfolder
 			, type
 			, folderhidebudept 
-		from itg_folder where folderoid = @id`,
-		sql.Named("id", id),
+		from folder_list where folderoid = @folderoid`,
+		sql.Named("folderoid", folderoid),
 	)
 
 	err := row.Scan(&title, &titlehead, &foldertype, &folderhidebudept)
@@ -73,8 +74,13 @@ func Folder(id, divoid, deptoid int) (FolderData, error) {
 		result.Title = title + " -> " + divname
 	}
 
-	result.User = "admin"            // sementara dummy
-	result.Lap_harisan_saya = "asdf" // sementara dummy
+	LapHarian, err := model_file.GetFile(folderoid, divoid, deptoid)
+	if err != nil {
+		return result, err
+	}
+
+	result.User = "admin"               // sementara dummy
+	result.Lap_harisan_saya = LapHarian // sementara dummy (diambil dari models file/getLapHarian (folderoid, divoid, deptoid))
 	result.Folderhidebudept = folderhidebudept
 	result.Divoid = divoid
 	result.Deptoid = deptoid
