@@ -83,13 +83,13 @@ func FileDownloadHarian(id int) (string, string, string, error) {
 	var path string
 	switch foldertype {
 	case "subfolder":
-		path = fmt.Sprintf("C:/FileManager/%s/%s/%s", titlehead, title, fileurl)
+		path = filepath.Join("C:/FileManager", titlehead, title, fileurl) // fmt.Sprintf("C:/FileManager/%s/%s/%s", titlehead, title, fileurl)
 	case "headfolder":
-		path = fmt.Sprintf("C:/FileManager/%s/%s", title, fileurl)
+		path = filepath.Join("C:/FileManager", title, fileurl) // fmt.Sprintf("C:/FileManager/%s/%s", title, fileurl)
 	case "budeptfolder":
-		path = fmt.Sprintf("C:/FileManager/%s/%s/%s/%s", title, divname, deptname, fileurl)
+		path = filepath.Join("C:/FileManager", title, divname, deptname, fileurl) // fmt.Sprintf("C:/FileManager/%s/%s/%s/%s", title, divname, deptname, fileurl)
 	case "bufolder":
-		path = fmt.Sprintf("C:/FileManager/%s/%s/%s", title, divname, fileurl)
+		path = filepath.Join("C:/FileManager", title, divname, fileurl) // fmt.Sprintf("C:/FileManager/%s/%s/%s", title, divname, fileurl)
 	default:
 		return "", "", "", fmt.Errorf("unknown foldertype")
 	}

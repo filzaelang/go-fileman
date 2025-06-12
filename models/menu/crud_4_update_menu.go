@@ -18,6 +18,11 @@ func UpdateMenu(payload UpdateMenuPayload) error {
 		err = UpdateSubfolder(payload)
 	}
 
+	// if folder is budeptfolder
+	if payload.Type == BUDEPTFOLDER {
+		err = UpdateBUdeptfolder(payload)
+	}
+
 	// if folder is bufolder
 	if payload.Type == BUFOLDER {
 		err = UpdateBUFolder(payload)
@@ -60,6 +65,21 @@ func UpdateSubfolder(payload UpdateMenuPayload) error {
 		where headfolder = @previous_headfolder
 			and type = 'subfolder'
 		`, sql.Named("headfolder", payload.Name),
+		sql.Named("user", payload.User),
+		sql.Named("previous_headfolder", payload.Headfolder))
+	return err
+}
+
+func UpdateBUdeptfolder(payload UpdateMenuPayload) error {
+	_, err := db.DB_DEV.Exec(`
+		update folder_list
+		set headfolder = @name
+		  , [name] = @name
+		  , lastupdateuser = @user
+		  , lastupdatetime = getdate()
+		where headfolder = @previous_headfolder
+			and type = 'budeptfolder' 
+		`, sql.Named("name", payload.Name),
 		sql.Named("user", payload.User),
 		sql.Named("previous_headfolder", payload.Headfolder))
 	return err

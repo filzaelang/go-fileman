@@ -4,4 +4,6 @@ Bug di front end waktu add menu nama di budeptchild bisa meng enter nama folder 
 Bug di front end waktu add menu di base bisa meng enter nama yang sama
 Kecil : submit ke api masih di component
 
+Bug gk bisa changename budeptfolder di deploy
+
 Sementara saat ini, tampilkan file di folder

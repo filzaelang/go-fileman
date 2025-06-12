@@ -2,12 +2,14 @@ package api
 
 import (
 	"file-manager/helpers"
-	"file-manager/models"
+	// "file-manager/models"
 	model_file "file-manager/models/file"
 	"fmt"
 	"net/http"
 	"os"
 	"strconv"
+
+	"path/filepath"
 
 	"github.com/labstack/echo/v4"
 )
@@ -29,7 +31,7 @@ func RegisterFileRoutes(g *echo.Group) {
 		var username = "admin"
 
 		if ext == ".pdf" {
-			filePathOut = fmt.Sprintf("C:/FileManager/%s", fileName)
+			filePathOut = filepath.Join("C:/FileManager", fileName) // fmt.Sprintf("C:/FileManager/%s", fileName)
 			err = helpers.AddPDFWatermark(filePath, filePathOut, username)
 			if err != nil {
 				return c.String(http.StatusInternalServerError, "Failed to apply watermark to the file")
@@ -59,19 +61,19 @@ func RegisterFileRoutes(g *echo.Group) {
 		return c.Stream(http.StatusOK, mimeType, file)
 	})
 
-	g.POST("", func(c echo.Context) error {
-		// Parse multipart form
-		fileHeader, err := c.FormFile("file")
-		if err != nil {
-			return c.String(http.StatusBadRequest, "File tidak ditemukan")
-		}
+	// g.POST("", func(c echo.Context) error {
+	// 	// Parse multipart form
+	// 	fileHeader, err := c.FormFile("file")
+	// 	if err != nil {
+	// 		return c.String(http.StatusBadRequest, "File tidak ditemukan")
+	// 	}
 
-		result, err := models.Upload(fileHeader, c)
+	// 	result, err := models.Upload(fileHeader, c)
 
-		if err != nil {
-			return c.String(http.StatusInternalServerError, result)
-		}
+	// 	if err != nil {
+	// 		return c.String(http.StatusInternalServerError, result)
+	// 	}
 
-		return c.String(http.StatusOK, result)
-	})
+	// 	return c.String(http.StatusOK, result)
+	// })
 }
