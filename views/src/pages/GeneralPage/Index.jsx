@@ -7,6 +7,10 @@ import ModalMoveFile from "../../components/Modal/ModalMoveFile";
 
 function Index({ phrase, items, menus }) {
   const { url } = usePage();
+  const parts = url.split("/");
+  const folderoid = parts[2];
+  const divoid = parts[3];
+  const deptoid = parts[4];
   const [isMUploadOpen, setIsMUploadOpen] = useState(false);
   const [isMMoveFileOpen, setIsMMoveFileOpen] = useState(false);
 
@@ -52,7 +56,13 @@ function Index({ phrase, items, menus }) {
           </div>
         </div>
         {isMUploadOpen && (
-          <ModalUpload setIsMUploadOpen={setIsMUploadOpen} onSubmit={upload} />
+          <ModalUpload
+            setIsMUploadOpen={setIsMUploadOpen}
+            onSubmit={upload}
+            folderoid={folderoid}
+            divoid={divoid}
+            deptoid={deptoid}
+          />
         )}
         {isMMoveFileOpen && (
           <ModalMoveFile

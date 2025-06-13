@@ -5,21 +5,53 @@ import (
 	"file-manager/db"
 	"file-manager/helpers"
 	"fmt"
+	"io"
 	"mime/multipart"
 	"os"
 	"path/filepath"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/labstack/echo/v4"
 )
 
-func Upload(fileHeader *multipart.FileHeader, c echo.Context, folderoid int, divoid int, deptoid int) (string, error, string) {
+func UploadFile(fileHeader *multipart.FileHeader, c echo.Context) (string, string, error) {
 
-	var upload_path string
+	filenameInput := c.FormValue("document_name")
+	filenumberInput := c.FormValue("document_number")
+	filerevnumberInput := c.FormValue("revision_number")
+	filerevdateInput := c.FormValue("revision_date")
+	filerevdate, err := time.Parse("2006-01-02", filerevdateInput)
+	if err != nil {
+		return "", "", err
+	}
+	folderoid, err := strconv.Atoi(c.FormValue("folderoid"))
+	if err != nil {
+		return "", "", err
+	}
+	divoid, err := strconv.Atoi(c.FormValue("divoid"))
+	if err != nil {
+		return "", "", err
+	}
+	deptoid, err := strconv.Atoi(c.FormValue("deptoid"))
+	if err != nil {
+		return "", "", err
+	}
+
+	transaction, err := db.DB_DEV.Begin()
+	if err != nil {
+		return "", "", err
+	}
+	defer func() {
+		if err != nil {
+			transaction.Rollback()
+		}
+	}()
+
 	// check folder_type etc
 	var title, titlehead, foldertype, folderhidebudept, divname, deptname string
-	row := db.DB_DEV.QueryRow(`
+	row := transaction.QueryRow(`
 		select top 1 
 			  [name]
 			, headfolder
@@ -29,9 +61,9 @@ func Upload(fileHeader *multipart.FileHeader, c echo.Context, folderoid int, div
 		sql.Named("folderoid", folderoid),
 	)
 
-	err := row.Scan(&title, &titlehead, &foldertype, &folderhidebudept)
+	err = row.Scan(&title, &titlehead, &foldertype, &folderhidebudept)
 	if err != nil {
-		return "", err, ""
+		return "", "", err
 	}
 
 	if foldertype == "budeptfolder" || foldertype == "bufolder" {
@@ -43,7 +75,7 @@ func Upload(fileHeader *multipart.FileHeader, c echo.Context, folderoid int, div
 
 			err = row.Scan(&divname)
 			if err != nil {
-				return "", err, ""
+				return "", "", err
 			}
 		}
 		if deptoid != 0 {
@@ -55,7 +87,7 @@ func Upload(fileHeader *multipart.FileHeader, c echo.Context, folderoid int, div
 
 			err = row.Scan(&deptname)
 			if err != nil {
-				return "", err, ""
+				return "", "", err
 			}
 		}
 	}
@@ -64,8 +96,8 @@ func Upload(fileHeader *multipart.FileHeader, c echo.Context, folderoid int, div
 
 	src, err := fileHeader.Open()
 	if err != nil {
-		redirectUrl = ErrorRedirect(foldertype, folderoid, divoid, deptoid)
-		return redirectUrl, err, "UPLOAD FAILED! No file uploaded."
+		redirectUrl = ResponseRedirect(foldertype, folderoid, divoid, deptoid)
+		return redirectUrl, "UPLOAD FAILED! No file uploaded.", err
 	}
 	defer src.Close()
 
@@ -101,10 +133,8 @@ func Upload(fileHeader *multipart.FileHeader, c echo.Context, folderoid int, div
 
 	if err != sql.ErrNoRows {
 		errorUploadMessage := fmt.Sprintf("UPLOAD FAILED! file uploaded is exist in this folder with number %s", filenumber)
-		redirectUrl = ErrorRedirect(foldertype, folderoid, divoid, deptoid)
-		return redirectUrl, nil, errorUploadMessage
-	} else if err != nil {
-		return "", err, "Filenumber doesn't exist"
+		redirectUrl = ResponseRedirect(foldertype, folderoid, divoid, deptoid)
+		return redirectUrl, errorUploadMessage, nil
 	}
 
 	fileNumberInput := c.FormValue("document_number")
@@ -116,10 +146,8 @@ func Upload(fileHeader *multipart.FileHeader, c echo.Context, folderoid int, div
 
 	if err != sql.ErrNoRows {
 		errorUploadMessage := fmt.Sprintf("UPLOAD FAILED! file number %s is already exist. please check in All Files", fileNumberInput)
-		redirectUrl = ErrorRedirect(foldertype, folderoid, divoid, deptoid)
-		return redirectUrl, nil, errorUploadMessage
-	} else if err != nil {
-		return "", err, ""
+		redirectUrl = ResponseRedirect(foldertype, folderoid, divoid, deptoid)
+		return redirectUrl, errorUploadMessage, nil
 	}
 
 	titlehead = helpers.CharReplace(titlehead)
@@ -132,58 +160,140 @@ func Upload(fileHeader *multipart.FileHeader, c echo.Context, folderoid int, div
 	// $config['allowed_types'] = 'xls|xlsx|doc|docx|ppt|pptx|pdf|zip|rar|txt';
 	// $config['max_size']     = '102400000';
 
-	upload_path, err = UploadPath(foldertype, title, titlehead, divname, deptname)
+	upload_path, err := UploadPath(foldertype, title, titlehead, divname, deptname)
 	if err != nil {
-		return "", err, ""
+		return "", "", err
 	}
 
-	// return filenumber, nil, ""
-	// // get metadata from form
-	// ducumentNumber := c.FormValue("document_number")
-	// documentName := c.FormValue("document_name")
-	// revisionNumber := c.FormValue("revision_number")
-	// revisionDate := c.FormValue("revision_date")
+	fullFilePath := filepath.Join(upload_path, file)
 
-	// // Save file to C:\FileManager\ with unique name
-	// timestamp := time.Now().Format("20060102_150405")
-	// safeFileName := fmt.Sprintf("%s_%s_%s_%s%s",
-	// 	ducumentNumber,
-	// 	documentName,
-	// 	revisionNumber,
-	// 	timestamp,
-	// 	filepath.Ext(fileHeader.Filename),
-	// )
-	// targetPath := filepath.Join("C:\\FileManager", safeFileName)
+	dst, err := os.Create(fullFilePath)
+	if err != nil {
+		return "Gagal menyimpan file", "", err
+	}
 
-	// dst, err := os.Create(targetPath)
-	// if err != nil {
-	// 	return "Gagal menyimpan file", err
-	// }
+	if _, err = io.Copy(dst, src); err != nil {
+		dst.Close()
+		return "Gagal menyalin file", "", err
+	}
+	dst.Close()
 
-	// if _, err = io.Copy(dst, src); err != nil {
+	// get last fileoid
+	var lastFileoid int
+	rows := db.DB_DEV.QueryRow("select top 1 fileoid from file_list order by fileoid desc")
+	err = rows.Scan(&lastFileoid)
+	if err != nil {
+		return "", "", err
+	}
+
+	newFileoid := lastFileoid + 1
+
+	_, err = db.DB_DEV.Exec(`
+		insert into file_list (
+			fileoid
+		  , divoid
+		  , deptoid
+		  , leveloid
+		  , folderoid
+		  , filename
+		  , fileurl
+		  , createuser
+		  , createtime
+		  , lastupdateuser
+		  , lastupdatetime
+		  , filenumber
+		  , filerevnumber
+		  , filerevdate
+		  , fileoldnumber
+		  , filevisible
+		) values (
+		 	@fileoid
+		  , @divoid
+		  , @deptoid
+		  , @leveloid
+		  , @folderoid
+		  , @filename
+		  , @fileurl
+		  , @user
+		  , getdate()
+		  , @user
+		  , getdate()
+		  , @filenumber
+		  , @filerevnumber
+		  , @filerevdate
+		  , @fileoldnumber
+		  , @filevisible
+		)
+		`, sql.Named("fileoid", newFileoid),
+		sql.Named("divoid", divoid),
+		sql.Named("deptoid", deptoid),
+		sql.Named("leveloid", 0), //Sementara diisi nol => $this->session->userdata('leveloid')
+		sql.Named("folderoid", folderoid),
+		sql.Named("filename", filenameInput),
+		sql.Named("fileurl", file), //Nanti di research lagi
+		sql.Named("user", "admin"), //Nanti dibenarkan setelah auth selesai
+		sql.Named("filenumber", filenumberInput),
+		sql.Named("filerevnumber", filerevnumberInput),
+		sql.Named("filerevdate", filerevdate),
+		sql.Named("fileoldnumber", ""),
+		sql.Named("filevisible", "True"))
+
+	if err != nil {
+		return "", "", err
+	}
+
+	// if ext == ".pdf" || ext == ".png" {
+	// 	timestamp := time.Now().Format("20060102_150405")
+	// 	safeFileName := fmt.Sprintf("%s_%s_%s_%s%s",
+	// 		filenumberInput,
+	// 		filenameInput,
+	// 		filerevnumberInput,
+	// 		timestamp,
+	// 		filepath.Ext(fileHeader.Filename),
+	// 	)
+	// 	targetPath := filepath.Join("C:/FileManager", safeFileName)
+
+	// 	dst, err := os.Create(targetPath)
+	// 	if err != nil {
+	// 		return "Gagal menyimpan file", "", err
+	// 	}
+
+	// 	if _, err = io.Copy(dst, src); err != nil {
+	// 		dst.Close()
+	// 		return "Gagal menyalin file", "", err
+	// 	}
 	// 	dst.Close()
-	// 	return "Gagal menyalin file", err
-	// }
-	// dst.Close()
 
-	// compressedPath := filepath.Join("C:\\FileManager", (documentName + ext))
-
-	// if ext == ".pdf" {
-	// 	if err := helpers.CompressPdf(targetPath, compressedPath); err != nil {
-	// 		return "Gagal mengompresi PDF", err
+	// 	if ext == ".pdf" {
+	// 		if err := helpers.CompressPdf(targetPath, upload_path); err != nil {
+	// 			return "Gagal mengompresi PDF", "", err
+	// 		}
+	// 	} else if ext == ".png" {
+	// 		if err := helpers.CompressPng(targetPath, upload_path); err != nil {
+	// 			return "Gagal mengompresi PNG", "", err
+	// 		}
 	// 	}
-	// } else if ext == ".png" {
-	// 	if err := helpers.CompressPng(targetPath, compressedPath); err != nil {
-	// 		return "Gagal mengompresi PNG", err
+
+	// 	// Hapus file asli
+	// 	if err := os.Remove(targetPath); err != nil {
+	// 		return "Gagal menghapus file asli", "", err
 	// 	}
+	// } else {
+	// 	dst, err := os.Create(upload_path)
+	// 	if err != nil {
+	// 		return "Gagal menyimpan file", "", err
+	// 	}
+
+	// 	if _, err = io.Copy(dst, src); err != nil {
+	// 		dst.Close()
+	// 		return "Gagal menyalin file", "", err
+	// 	}
+	// 	dst.Close()
 	// }
 
-	// // Hapus file asli
-	// if err := os.Remove(targetPath); err != nil {
-	// 	return "Gagal menghapus file asli", err
-	// }
+	url_redirect := ResponseRedirect(foldertype, folderoid, divoid, deptoid)
 
-	// return "File berhasil diupload", nil
+	return url_redirect, "", nil
 }
 
 func UploadPath(foldertype, title, titlehead, divname, deptname string) (string, error) {
@@ -224,20 +334,20 @@ func UploadPath(foldertype, title, titlehead, divname, deptname string) (string,
 			}
 		}
 
-		upload_path = dirpath + string(os.PathSeparator) //fmt.Sprintf("C:/FileManager/%s/%s/%s/", title, divname, deptname)
+		upload_path = fmt.Sprintf("C:/FileManager/%s/%s/%s/", title, divname, deptname)
 	}
 
 	return upload_path, nil
 }
 
-func ErrorRedirect(foldertype string, folderoid int, divoid int, deptoid int) string {
+func ResponseRedirect(foldertype string, folderoid int, divoid int, deptoid int) string {
 	var redirectUrl string = ""
 	if foldertype == "headfolder" || foldertype == "subfolder" {
-		redirectUrl = "/folder/" + strconv.Itoa(folderoid) + "/0/0"
+		redirectUrl = fmt.Sprintf("/folder/%s/0/0", strconv.Itoa(folderoid))
 	} else if foldertype == "bufolder" {
-		redirectUrl = fmt.Sprintf("/folder/%s/%s/0", folderoid, divoid)
+		redirectUrl = fmt.Sprintf("/folder/%s/%s/0", strconv.Itoa(folderoid), strconv.Itoa(divoid))
 	} else if foldertype == "budeptfolder" {
-		redirectUrl = fmt.Sprintf("/folder/%s/%s/%s", folderoid, divoid, deptoid)
+		redirectUrl = fmt.Sprintf("/folder/%s/%s/%s", strconv.Itoa(folderoid), strconv.Itoa(divoid), strconv.Itoa(deptoid))
 	}
 
 	return redirectUrl

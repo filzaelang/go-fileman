@@ -17,6 +17,8 @@ func ConfigureRoutes(e *echo.Echo) {
 	api.RegisterMenuRoutes(apiGroupMenu)
 	apiGroupFile := e.Group("/api/files")
 	api.RegisterFileRoutes(apiGroupFile)
+	apiGroupDummy := e.Group("/api/dummy")
+	api.RegisterFileRoutesDummy(apiGroupDummy)
 
 	// Dynamic routes
 	e.GET("/folder/:folderoid/:divoid/:deptoid", dynamicMenuHandler)

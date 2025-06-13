@@ -210,8 +210,9 @@ func Upload(fileHeader *multipart.FileHeader, c echo.Context) (string, error) {
 		timestamp,
 		filepath.Ext(fileHeader.Filename),
 	)
-	targetPath := filepath.Join("C:\\FileManager", safeFileName)
+	targetPath := filepath.Join("C:\\FileManager\\blablabla", safeFileName)
 
+	// sudah disimpan di path
 	dst, err := os.Create(targetPath)
 	if err != nil {
 		return "Gagal menyimpan file", err
@@ -222,6 +223,7 @@ func Upload(fileHeader *multipart.FileHeader, c echo.Context) (string, error) {
 		return "Gagal menyalin file", err
 	}
 	dst.Close()
+	// sudah disimpan di path
 
 	compressedPath := filepath.Join("C:\\FileManager", (documentName + ext))
 

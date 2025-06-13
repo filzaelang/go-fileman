@@ -61,19 +61,19 @@ func RegisterFileRoutes(g *echo.Group) {
 		return c.Stream(http.StatusOK, mimeType, file)
 	})
 
-	// g.POST("", func(c echo.Context) error {
-	// 	// Parse multipart form
-	// 	fileHeader, err := c.FormFile("file")
-	// 	if err != nil {
-	// 		return c.String(http.StatusBadRequest, "File tidak ditemukan")
-	// 	}
+	g.POST("", func(c echo.Context) error {
+		// Parse multipart form
+		fileHeader, err := c.FormFile("file")
+		if err != nil {
+			return c.String(http.StatusBadRequest, "File tidak ditemukan")
+		}
 
-	// 	result, err := models.Upload(fileHeader, c)
+		result, _, err := model_file.UploadFile(fileHeader, c) //models.Upload(fileHeader, c)
 
-	// 	if err != nil {
-	// 		return c.String(http.StatusInternalServerError, result)
-	// 	}
+		if err != nil {
+			return c.String(http.StatusInternalServerError, result)
+		}
 
-	// 	return c.String(http.StatusOK, result)
-	// })
+		return c.String(http.StatusOK, result)
+	})
 }

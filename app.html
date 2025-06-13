@@ -1,18 +1,27 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>File Manager</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {{if .isDevelopment}}
+    <script type="module">
+        import RefreshRuntime from 'http://localhost:5173/@react-refresh'
+        RefreshRuntime.injectIntoGlobalHook(window)
+        window.$RefreshReg$ = () => {}
+        window.$RefreshSig$ = () => (type) => type
+        window.__vite_plugin_react_preamble_installed__ = true
+    </script>
+    {{end}}
 
-  <!-- Load CSS from build -->
-  <link rel="stylesheet" href="/assets/index-BehifX8y.css" />
+    {{range .jsFiles}}
+        <script type="module" crossorigin src="{{.}}"></script>
+    {{end}}
+
+    {{range .cssFiles}}
+        <link rel="stylesheet" href="/{{.}}">
+    {{end}}
 </head>
 <body>
-  <!-- Root with dynamic page object -->
-  <div id="app" data-page='{{.pageObject}}'></div>
-
-  <!-- JS bundle -->
-  <script type="module" src="/assets/index-D1-vYvPd.js"></script>
+    <div id="app" data-page='{{.pageObject}}'></div>
 </body>
 </html>

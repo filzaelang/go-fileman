@@ -2,13 +2,21 @@ import React from "react";
 import { RiCloseLine } from "react-icons/ri";
 import { useForm } from "@inertiajs/react";
 
-export default function ModalUpload({ setIsMUploadOpen, onSubmit }) {
+export default function ModalUpload({
+  setIsMUploadOpen,
+  onSubmit,
+  folderoid,
+  divoid,
+  deptoid,
+}) {
   const { data, setData } = useForm({
-    id: null,
     document_number: "",
     document_name: "",
     revision_number: "",
     revision_date: "",
+    folderoid: folderoid,
+    divoid: divoid,
+    deptoid: deptoid,
     file: null,
   });
 
