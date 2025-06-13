@@ -4,6 +4,7 @@ import { router } from "@inertiajs/react";
 import { useState } from "react";
 import ModalUpload from "../../components/Modal/ModalUpload";
 import ModalMoveFile from "../../components/Modal/ModalMoveFile";
+import axios from "axios";
 
 function Index({ phrase, items, menus }) {
   const { url } = usePage();
@@ -14,11 +15,30 @@ function Index({ phrase, items, menus }) {
   const [isMUploadOpen, setIsMUploadOpen] = useState(false);
   const [isMMoveFileOpen, setIsMMoveFileOpen] = useState(false);
 
-  const upload = (data) => {
+  const upload = async (data) => {
     setIsMUploadOpen(false);
-    router.post("/api/files", data, {
-      onSuccess: () => router.visit("/"),
-    });
+
+    const formData = new FormData();
+    for (const key in data) {
+      formData.append(key, data[key]);
+    }
+
+    try {
+      const response = await axios.post("/api/files", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+
+      const res = response.data;
+
+      alert(res.message);
+      router.visit(res.redirect);
+    } catch (error) {
+      alert(
+        "Upload gagal: " + (error.response?.data?.message || error.message)
+      );
+    }
   };
 
   const moveFile = () => {
