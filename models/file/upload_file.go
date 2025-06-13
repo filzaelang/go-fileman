@@ -79,7 +79,7 @@ func UploadFile(fileHeader *multipart.FileHeader, c echo.Context) (string, strin
 			}
 		}
 		if deptoid != 0 {
-			row = db.DB_DEV.QueryRow(`
+			row = transaction.QueryRow(`
 				select top 1 name from dept_list where divoid=@divoid and deptoid=@deptoid`,
 				sql.Named("divoid", divoid),
 				sql.Named("deptoid", deptoid),
@@ -101,7 +101,7 @@ func UploadFile(fileHeader *multipart.FileHeader, c echo.Context) (string, strin
 	}
 	defer src.Close()
 
-	// ext := strings.ToLower(filepath.Ext(fileHeader.Filename))
+	ext := strings.ToLower(filepath.Ext(fileHeader.Filename))
 
 	fileraw := helpers.PrepFilename(fileHeader.Filename)
 	file := helpers.NormalizeFilename(fileraw)
@@ -128,7 +128,7 @@ func UploadFile(fileHeader *multipart.FileHeader, c echo.Context) (string, strin
 		args = append(args, sql.Named("fileurl", file))
 	}
 
-	row = db.DB_DEV.QueryRow(query, args...)
+	row = transaction.QueryRow(query, args...)
 	err = row.Scan(&filenumber)
 
 	if err != sql.ErrNoRows {
@@ -139,7 +139,7 @@ func UploadFile(fileHeader *multipart.FileHeader, c echo.Context) (string, strin
 
 	fileNumberInput := c.FormValue("document_number")
 
-	row = db.DB_DEV.QueryRow(
+	row = transaction.QueryRow(
 		"select top 1 filenumber from file_list where folderoid <> 0 and filenumber = @filenumber",
 		sql.Named("filenumber", fileNumberInput))
 	err = row.Scan(&filenumber)
@@ -157,30 +157,9 @@ func UploadFile(fileHeader *multipart.FileHeader, c echo.Context) (string, strin
 		deptname = helpers.CharReplace(deptname)
 	}
 
-	// $config['allowed_types'] = 'xls|xlsx|doc|docx|ppt|pptx|pdf|zip|rar|txt';
-	// $config['max_size']     = '102400000';
-
-	upload_path, err := UploadPath(foldertype, title, titlehead, divname, deptname)
-	if err != nil {
-		return "", "", err
-	}
-
-	fullFilePath := filepath.Join(upload_path, file)
-
-	dst, err := os.Create(fullFilePath)
-	if err != nil {
-		return "Gagal menyimpan file", "", err
-	}
-
-	if _, err = io.Copy(dst, src); err != nil {
-		dst.Close()
-		return "Gagal menyalin file", "", err
-	}
-	dst.Close()
-
 	// get last fileoid
 	var lastFileoid int
-	rows := db.DB_DEV.QueryRow("select top 1 fileoid from file_list order by fileoid desc")
+	rows := transaction.QueryRow("select top 1 fileoid from file_list order by fileoid desc")
 	err = rows.Scan(&lastFileoid)
 	if err != nil {
 		return "", "", err
@@ -188,7 +167,7 @@ func UploadFile(fileHeader *multipart.FileHeader, c echo.Context) (string, strin
 
 	newFileoid := lastFileoid + 1
 
-	_, err = db.DB_DEV.Exec(`
+	_, err = transaction.Exec(`
 		insert into file_list (
 			fileoid
 		  , divoid
@@ -242,54 +221,66 @@ func UploadFile(fileHeader *multipart.FileHeader, c echo.Context) (string, strin
 		return "", "", err
 	}
 
-	// if ext == ".pdf" || ext == ".png" {
-	// 	timestamp := time.Now().Format("20060102_150405")
-	// 	safeFileName := fmt.Sprintf("%s_%s_%s_%s%s",
-	// 		filenumberInput,
-	// 		filenameInput,
-	// 		filerevnumberInput,
-	// 		timestamp,
-	// 		filepath.Ext(fileHeader.Filename),
-	// 	)
-	// 	targetPath := filepath.Join("C:/FileManager", safeFileName)
+	// $config['allowed_types'] = 'xls|xlsx|doc|docx|ppt|pptx|pdf|zip|rar|txt';
+	// $config['max_size']     = '102400000';
 
-	// 	dst, err := os.Create(targetPath)
-	// 	if err != nil {
-	// 		return "Gagal menyimpan file", "", err
-	// 	}
+	upload_path, err := UploadPath(foldertype, title, titlehead, divname, deptname)
+	if err != nil {
+		return "", "", err
+	}
 
-	// 	if _, err = io.Copy(dst, src); err != nil {
-	// 		dst.Close()
-	// 		return "Gagal menyalin file", "", err
-	// 	}
-	// 	dst.Close()
+	fullFilePath := filepath.Join(upload_path, file)
 
-	// 	if ext == ".pdf" {
-	// 		if err := helpers.CompressPdf(targetPath, upload_path); err != nil {
-	// 			return "Gagal mengompresi PDF", "", err
-	// 		}
-	// 	} else if ext == ".png" {
-	// 		if err := helpers.CompressPng(targetPath, upload_path); err != nil {
-	// 			return "Gagal mengompresi PNG", "", err
-	// 		}
-	// 	}
+	if ext == ".pdf" || ext == ".png" {
+		timestamp := time.Now().Format("20060102_150405")
+		safeFileName := fmt.Sprintf("%s_%s_%s_%s%s",
+			filenumberInput,
+			filenameInput,
+			filerevnumberInput,
+			timestamp,
+			filepath.Ext(fileHeader.Filename),
+		)
+		targetPath := filepath.Join("C:/FileManager", safeFileName)
 
-	// 	// Hapus file asli
-	// 	if err := os.Remove(targetPath); err != nil {
-	// 		return "Gagal menghapus file asli", "", err
-	// 	}
-	// } else {
-	// 	dst, err := os.Create(upload_path)
-	// 	if err != nil {
-	// 		return "Gagal menyimpan file", "", err
-	// 	}
+		dst, err := os.Create(targetPath)
+		if err != nil {
+			return "Gagal menyimpan file", "", err
+		}
 
-	// 	if _, err = io.Copy(dst, src); err != nil {
-	// 		dst.Close()
-	// 		return "Gagal menyalin file", "", err
-	// 	}
-	// 	dst.Close()
-	// }
+		if _, err = io.Copy(dst, src); err != nil {
+			dst.Close()
+			return "Gagal menyalin file", "", err
+		}
+		dst.Close()
+
+		if ext == ".pdf" {
+			if err := helpers.CompressPdf(targetPath, fullFilePath); err != nil {
+				return "Gagal mengompresi PDF", "", err
+			}
+		} else if ext == ".png" {
+			if err := helpers.CompressPng(targetPath, fullFilePath); err != nil {
+				return "Gagal mengompresi PNG", "", err
+			}
+		}
+
+		// Hapus file asli
+		if err := os.Remove(targetPath); err != nil {
+			return "Gagal menghapus file asli", "", err
+		}
+	} else {
+		dst, err := os.Create(fullFilePath)
+		if err != nil {
+			return "Gagal menyimpan file", "", err
+		}
+
+		if _, err = io.Copy(dst, src); err != nil {
+			dst.Close()
+			return "Gagal menyalin file", "", err
+		}
+		dst.Close()
+	}
+
+	transaction.Commit()
 
 	url_redirect := ResponseRedirect(foldertype, folderoid, divoid, deptoid)
 
