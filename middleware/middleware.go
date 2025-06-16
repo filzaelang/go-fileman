@@ -6,6 +6,8 @@ import (
 	"net/url"
 	"os"
 
+	"github.com/gorilla/sessions"
+	session "github.com/labstack/echo-contrib/session"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 )
@@ -14,7 +16,7 @@ func ConfigureMiddleware(e *echo.Echo) {
 
 	assetVersion := "1"
 	e.Use(inertiaMiddleware.InertiaMiddleware(e, assetVersion))
-
+	e.Use(session.Middleware(sessions.NewCookieStore([]byte("secret-key"))))
 	e.Static("/", "views/public")
 
 	isDevelopment := os.Getenv("BUILD_ENV") == "development"

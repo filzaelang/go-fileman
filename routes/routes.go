@@ -2,6 +2,7 @@ package routes
 
 import (
 	"file-manager/api"
+	"file-manager/middleware"
 	"file-manager/models"
 	model_file "file-manager/models/file"
 	menu "file-manager/models/menu"
@@ -37,7 +38,7 @@ func ConfigureRoutes(e *echo.Echo) {
 	e.GET("/profile", func(ctx echo.Context) error {
 		items, _ := models.GetFile()
 		return renderWithMenus(ctx, "Profile", "Profile", items)
-	})
+	}, middleware.RequireAuth)
 
 	e.GET("/setup", func(ctx echo.Context) error {
 		items, _ := models.GetFile()
