@@ -17,7 +17,6 @@ import (
 )
 
 func UploadFile(fileHeader *multipart.FileHeader, c echo.Context) (string, string, error) {
-
 	filenameInput := c.FormValue("document_name")
 	filenumberInput := c.FormValue("document_number")
 	filerevnumberInput := c.FormValue("revision_number")
@@ -26,17 +25,17 @@ func UploadFile(fileHeader *multipart.FileHeader, c echo.Context) (string, strin
 	if err != nil {
 		return "", "", err
 	}
-	folderoid, err := strconv.Atoi(c.FormValue("folderoid"))
-	if err != nil {
-		return "", "", err
+
+	var folderoid, divoid, deptoid int
+
+	if folderoid, err = strconv.Atoi(c.FormValue("folderoid")); err != nil {
+		return "", "", fmt.Errorf("invalid folderoid: %w", err)
 	}
-	divoid, err := strconv.Atoi(c.FormValue("divoid"))
-	if err != nil {
-		return "", "", err
+	if divoid, err = strconv.Atoi(c.FormValue("divoid")); err != nil {
+		return "", "", fmt.Errorf("invalid divoid: %w", err)
 	}
-	deptoid, err := strconv.Atoi(c.FormValue("deptoid"))
-	if err != nil {
-		return "", "", err
+	if deptoid, err = strconv.Atoi(c.FormValue("deptoid")); err != nil {
+		return "", "", fmt.Errorf("invalid deptoid: %w", err)
 	}
 
 	transaction, err := db.DB_DEV.Begin()
@@ -270,12 +269,12 @@ func UploadFile(fileHeader *multipart.FileHeader, c echo.Context) (string, strin
 	} else {
 		dst, err := os.Create(fullFilePath)
 		if err != nil {
-			return "Gagal menyimpan file", "", err
+			return "", "Gagal menyimpan file", err
 		}
 
 		if _, err = io.Copy(dst, src); err != nil {
 			dst.Close()
-			return "Gagal menyalin file", "", err
+			return "", "Gagal menyalin file", err
 		}
 		dst.Close()
 	}
@@ -325,7 +324,7 @@ func UploadPath(foldertype, title, titlehead, divname, deptname string) (string,
 			}
 		}
 
-		upload_path = fmt.Sprintf("C:/FileManager/%s/%s/%s/", title, divname, deptname)
+		upload_path = dirpath + string(os.PathSeparator) //fmt.Sprintf("C:/FileManager/%s/%s/%s/", title, divname, deptname)
 	}
 
 	return upload_path, nil

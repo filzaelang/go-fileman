@@ -13,7 +13,17 @@ func FileDownloadHarian(id int) (string, string, string, error) {
 	var title, titlehead, foldertype, divname, deptname string
 	var folderoid, divoid, deptoid int
 
-	row := db.DB_DEV.QueryRow(`
+	transaction, err := db.DB_DEV.Begin()
+	if err != nil {
+		return "", "", "", err
+	}
+	defer func() {
+		if err != nil {
+			transaction.Rollback()
+		}
+	}()
+
+	row := transaction.QueryRow(`
 		select top 1 [name], headfolder, type, folderoid
 		from folder_list
 		where folderoid in
@@ -23,12 +33,12 @@ func FileDownloadHarian(id int) (string, string, string, error) {
 		sql.Named("id", id),
 	)
 
-	err := row.Scan(&title, &titlehead, &foldertype, &folderoid)
+	err = row.Scan(&title, &titlehead, &foldertype, &folderoid)
 	if err != nil {
 		return "", "", "", err
 	}
 
-	row = db.DB_DEV.QueryRow(`
+	row = transaction.QueryRow(`
 		select top 1 divoid, deptoid from file_list where fileoid = @id
 		`, sql.Named("id", id),
 	)
@@ -51,7 +61,7 @@ func FileDownloadHarian(id int) (string, string, string, error) {
 		}
 
 		if deptoid != 0 {
-			row := db.DB_DEV.QueryRow(`
+			row := transaction.QueryRow(`
 				select top 1 [name] from dept_list where divoid=@divoid and deptoid=@deptoid
 			`, sql.Named("divoid", divoid),
 				sql.Named("deptoid", deptoid))
@@ -74,7 +84,7 @@ func FileDownloadHarian(id int) (string, string, string, error) {
 	}
 
 	var fileurl string
-	row = db.DB_DEV.QueryRow("select top 1 fileurl from file_list where fileoid = @id", sql.Named("id", id))
+	row = transaction.QueryRow("select top 1 fileurl from file_list where fileoid = @id", sql.Named("id", id))
 	err = row.Scan(&fileurl)
 	if err != nil {
 		return "", "", "", err
@@ -102,10 +112,20 @@ func FileDownloadHarian(id int) (string, string, string, error) {
 
 	ext := filepath.Ext(fileurl)
 
+	// LogDownload(log, transaction)
+	var log Log
+	log.Fileoid = id
+	log.User = "admin"
+	log.Action = "Download"
+	log.Deptoid = deptoid
+	log.Counter = 0
+
+	err = LogDownload(log, transaction)
+	if err != nil {
+		return "", "", "", err
+	}
+
+	transaction.Commit()
+
 	return path, fileurl, ext, nil
 }
-
-// filepathStr := `C:\FileManager\5_dip.pdf`
-// filename := filepath.Base(filepathStr)
-
-// return filepathStr, filename, nil

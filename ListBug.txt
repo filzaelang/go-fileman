@@ -7,3 +7,7 @@ Kecil : submit ke api masih di component
 Bug gk bisa changename budeptfolder di deploy
 
 Sementara saat ini, tampilkan file di folder
+
+// Yang atas agak belakangan aja
+
+Utama = Ubah "oid" yang sebelumnya tambah manual menjadi menggunan set_identity on/off (seperti di log)

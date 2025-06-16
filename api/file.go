@@ -68,12 +68,19 @@ func RegisterFileRoutes(g *echo.Group) {
 			return c.String(http.StatusBadRequest, "File tidak ditemukan")
 		}
 
-		result, _, err := model_file.UploadFile(fileHeader, c) //models.Upload(fileHeader, c)
+		redirect_url, message, err := model_file.UploadFile(fileHeader, c) //models.Upload(fileHeader, c)
 
 		if err != nil {
-			return c.String(http.StatusInternalServerError, result)
+			return c.JSON(http.StatusInternalServerError, map[string]string{
+				"message":  message,
+				"redirect": redirect_url,
+			})
 		}
 
-		return c.String(http.StatusOK, result)
+		// return c.Redirect(http.StatusSeeOther, redirect_url)
+		return c.JSON(http.StatusOK, map[string]string{
+			"message":  "Upload berhasil",
+			"redirect": redirect_url,
+		})
 	})
 }

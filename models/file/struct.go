@@ -22,3 +22,11 @@ type FileItem struct {
 type ItgFile struct {
 	FileURL string
 }
+
+type Log struct {
+	Fileoid int    `json:"fileoid"`
+	User    string `json:"user"`
+	Action  string `json:"action"`
+	Deptoid int    `json:"deptoid"`
+	Counter int    `json:"counter"`
+}

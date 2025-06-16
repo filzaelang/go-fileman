@@ -119,27 +119,49 @@ export default function ModalUpload({
                 name="document_name"
                 type="text"
                 value={formData.document_name}
+                onBlur={() =>
+                  setTouched((prev) => ({ ...prev, document_name: true }))
+                }
                 onChange={handleChange}
                 placeholder="Nama Dokumen"
                 className="w-full px-3 py-2 text-gray-800 placeholder-gray-400 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
               />
-              {touched.document_number &&
-                formData.document_number.trim() === "" && (
-                  <p className="text-red-500 text-xs">
-                    Nama dokumen tidak boleh kosong
-                  </p>
-                )}
+              {touched.document_name && (
+                <>
+                  {formData.document_name.trim() === "" ? (
+                    <p className="text-red-500 text-xs">
+                      Nama dokumen tidak boleh kosong
+                    </p>
+                  ) : formData.document_name.trim().length < 3 ? (
+                    <p className="text-red-500 text-xs">
+                      Nama dokumen minimal 3 karakter
+                    </p>
+                  ) : null}
+                </>
+              )}
               <label className="w-full text-gray-800 placeholder-gray-400">
                 Revision Number<span className="text-red-500 text-xs">*</span>
               </label>
               <input
                 name="revision_number"
-                type="text"
+                type="number"
                 value={formData.revision_number}
+                onBlur={() =>
+                  setTouched((prev) => ({ ...prev, revision_number: true }))
+                }
                 onChange={handleChange}
-                placeholder="No Revisi"
+                placeholder="Isi (00) jika belum ada revisi"
                 className="w-full px-3 py-2 text-gray-800 placeholder-gray-400 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
               />
+              {touched.revision_number &&
+                formData.revision_number.trim() === "" && (
+                  <p className="text-red-500 text-xs">
+                    Nomor revisi tidak boleh kosong
+                  </p>
+                )}
+              <p className="text-red-500 text-xs">
+                Format pengisian : 00, 01, 02, 10, 11, dst
+              </p>
               <label className="w-full text-gray-800 placeholder-gray-400">
                 Revision Date<span className="text-red-500 text-xs">*</span>
               </label>
@@ -147,10 +169,13 @@ export default function ModalUpload({
                 type="date"
                 id="revision_date"
                 name="revision_date"
+                onBlur={() =>
+                  setTouched((prev) => ({ ...prev, revision_date: true }))
+                }
                 onChange={handleChange}
               ></input>
-              {touched.document_number &&
-                formData.document_number.trim() === "" && (
+              {touched.revision_date &&
+                formData.revision_date.trim() === "" && (
                   <p className="text-red-500 text-xs">
                     Tanggal revisi tidak boleh kosong
                   </p>
@@ -163,13 +188,18 @@ export default function ModalUpload({
               ></input>
               {formData.file === null && (
                 <p className="text-red-500 text-xs">
-                  Tanggal revisi tidak boleh kosong
+                  File yang diupload tidak boleh kosong
                 </p>
               )}
               <button
-                className="bg-blue-400"
                 type="submit"
                 disabled={!formValid}
+                className={`px-4 py-2 text-white rounded-md transition 
+                  ${
+                    formValid
+                      ? "bg-blue-500 hover:bg-blue-600"
+                      : "bg-gray-400 cursor-not-allowed"
+                  }`}
               >
                 Upload
               </button>

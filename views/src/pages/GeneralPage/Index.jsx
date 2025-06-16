@@ -18,13 +18,8 @@ function Index({ phrase, items, menus }) {
   const upload = async (data) => {
     setIsMUploadOpen(false);
 
-    const formData = new FormData();
-    for (const key in data) {
-      formData.append(key, data[key]);
-    }
-
     try {
-      const response = await axios.post("/api/files", formData, {
+      const response = await axios.post("/api/files", data, {
         headers: {
           "Content-Type": "multipart/form-data",
         },

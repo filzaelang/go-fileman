@@ -84,3 +84,17 @@ create table file_list (
   , constraint file_list_pk primary key (id)
   , constraint file_list_uq unique (fileoid)
 )
+
+-- "set identity_insert log on"
+create table log (
+    logoid int identity (1,1)
+  , fileoid int
+  , [user] varchar(20)
+  , [action] varchar(20)
+  , [datetime] datetime
+  , deptoid int null
+  , counter int null
+
+  , constraint log_pk primary key (id)
+)
+-- "set identity_insert log off"
