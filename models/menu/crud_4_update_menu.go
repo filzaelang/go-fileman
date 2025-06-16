@@ -42,7 +42,7 @@ func UpdateMenu(payload UpdateMenuPayload) error {
 }
 
 func UpdateHeadfolder(payload UpdateMenuPayload) error {
-	_, err := db.DB_DEV.Exec(`
+	_, err := db.DB.Exec(`
 		update folder_list
 		set headfolder = @name
 		  , [name] = @name
@@ -57,7 +57,7 @@ func UpdateHeadfolder(payload UpdateMenuPayload) error {
 }
 
 func UpdateSubfolder(payload UpdateMenuPayload) error {
-	_, err := db.DB_DEV.Exec(`
+	_, err := db.DB.Exec(`
 		update folder_list
 		set headfolder = @headfolder
 		  , lastupdateuser = @user
@@ -71,7 +71,7 @@ func UpdateSubfolder(payload UpdateMenuPayload) error {
 }
 
 func UpdateBUdeptfolder(payload UpdateMenuPayload) error {
-	_, err := db.DB_DEV.Exec(`
+	_, err := db.DB.Exec(`
 		update folder_list
 		set headfolder = @name
 		  , [name] = @name
@@ -88,7 +88,7 @@ func UpdateBUdeptfolder(payload UpdateMenuPayload) error {
 func UpdateBUSubfolderchild(payload UpdateMenuPayload) error {
 	var previousName string
 
-	rows := db.DB_DEV.QueryRow(`select top 1 name from folder_list where folderoid = @folderoid`,
+	rows := db.DB.QueryRow(`select top 1 name from folder_list where folderoid = @folderoid`,
 		sql.Named("folderoid", payload.Folderoid))
 
 	err := rows.Scan(&previousName)
@@ -96,7 +96,7 @@ func UpdateBUSubfolderchild(payload UpdateMenuPayload) error {
 		return err
 	}
 
-	_, err = db.DB_DEV.Exec(`
+	_, err = db.DB.Exec(`
 		update folder_list
 		set [name] = @name
 		  , lastupdateuser = @user
@@ -111,7 +111,7 @@ func UpdateBUSubfolderchild(payload UpdateMenuPayload) error {
 }
 
 func UpdateBUFolder(payload UpdateMenuPayload) error {
-	_, err := db.DB_DEV.Exec(`
+	_, err := db.DB.Exec(`
 		update folder_list
 		set headfolder = @name
 		  , [name] = @name
@@ -126,7 +126,7 @@ func UpdateBUFolder(payload UpdateMenuPayload) error {
 }
 
 func UpdateBUdeptlastchild(payload UpdateMenuPayload) error {
-	_, err := db.DB_DEV.Exec(`
+	_, err := db.DB.Exec(`
 		update dept_list
 		set name = @name
 		  , lastupdateuser = @user

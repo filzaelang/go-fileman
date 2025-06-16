@@ -7,7 +7,7 @@ import (
 )
 
 func GetSidebarMenu() ([]MenuSidebar, error) {
-	rows, err := db.DB_DEV.Query("select distinct headfolder, type, seq from folder_list order by seq asc")
+	rows, err := db.DB.Query("select distinct headfolder, type, seq from folder_list order by seq asc")
 	if err != nil {
 		return nil, err
 	}
@@ -80,7 +80,7 @@ func GetSidebarMenu() ([]MenuSidebar, error) {
 
 func GetHeadfolder(Headfolder string) (int, error) {
 	var folderoid int
-	headfolderRows := db.DB_DEV.QueryRow(`
+	headfolderRows := db.DB.QueryRow(`
 				select top 1 folderoid 
 				from folder_list 
 				where headfolder = @headfolder
@@ -94,7 +94,7 @@ func GetHeadfolder(Headfolder string) (int, error) {
 }
 
 func GetSubFolder(Headfolder string) ([]*MenuSidebar, error) {
-	childRows, err := db.DB_DEV.Query(`
+	childRows, err := db.DB.Query(`
 			select name, folderoid
 			from folder_list
 			where headfolder = @headfolder
@@ -129,7 +129,7 @@ func GetBuFolder(Headfolder string) ([]*MenuSidebar, int, error) {
 	var children []*MenuSidebar
 
 	var divIdList []int
-	divIdListRows, err := db.DB_DEV.Query(`
+	divIdListRows, err := db.DB.Query(`
 		select distinct divoid, seq 
 		from bu_list 
 		where divoid in (
@@ -179,7 +179,7 @@ func GetBuFolder(Headfolder string) ([]*MenuSidebar, int, error) {
 		buChildRows.Close()
 	}
 
-	folderRows, err := db.DB_DEV.Query(`
+	folderRows, err := db.DB.Query(`
 		select folderoid from folder_list where headfolder = @headfolder
 	`, sql.Named("headfolder", Headfolder))
 	if err != nil {
@@ -219,7 +219,7 @@ func GetBuDepthFolder(Headfolder string) ([]*MenuSidebar, int, error) {
 	var children []*MenuSidebar
 
 	var folderoid int
-	rowsFolderId := db.DB_DEV.QueryRow(`
+	rowsFolderId := db.DB.QueryRow(`
 		select top 1 folderoid from folder_list where headfolder = @headfolder
 	`, sql.Named("headfolder", Headfolder))
 	err := rowsFolderId.Scan(&folderoid)
@@ -228,7 +228,7 @@ func GetBuDepthFolder(Headfolder string) ([]*MenuSidebar, int, error) {
 	}
 
 	var divIdList []int
-	divIdListRows, err := db.DB_DEV.Query(`
+	divIdListRows, err := db.DB.Query(`
 		select distinct divoid, seq
 		from bu_list
 		where divoid in (
@@ -277,7 +277,7 @@ func GetBuDepthFolder(Headfolder string) ([]*MenuSidebar, int, error) {
 
 			// Sini untuk menambah menu lastchild budept
 			var deptIdList []int
-			buRowsThree, err := db.DB_DEV.Query(`
+			buRowsThree, err := db.DB.Query(`
 				select distinct deptoid
 				from folder_dept
 				where divoid = @divoid
@@ -297,7 +297,7 @@ func GetBuDepthFolder(Headfolder string) ([]*MenuSidebar, int, error) {
 			buRowsThree.Close()
 
 			if len(deptIdList) > 0 {
-				buRowsFour, err := db.DB_DEV.Query(`
+				buRowsFour, err := db.DB.Query(`
 							select deptoid, name
 							from dept_list
 							where divoid = @divoid

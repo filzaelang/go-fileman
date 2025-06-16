@@ -3,14 +3,11 @@ package api
 import (
 	"net/http"
 
+	model_auth "file-manager/models/auth"
+
 	"github.com/labstack/echo-contrib/session"
 	"github.com/labstack/echo/v4"
 )
-
-type LoginRequest struct {
-	Username string `json:"username" form:"username"`
-	Password string `json:"password" form:"password"`
-}
 
 func RegisterAuthRoutes(g *echo.Group) {
 	g.POST("/login", loginHandler)
@@ -18,7 +15,7 @@ func RegisterAuthRoutes(g *echo.Group) {
 }
 
 func loginHandler(c echo.Context) error {
-	var req LoginRequest
+	var req model_auth.LoginRequest
 	if err := c.Bind(&req); err != nil {
 		return c.String(http.StatusBadRequest, "Invalid input")
 	}
@@ -29,7 +26,10 @@ func loginHandler(c echo.Context) error {
 		sess.Values["authenticated"] = true
 		sess.Values["username"] = req.Username
 		sess.Save(c.Request(), c.Response())
-		return c.JSON(http.StatusOK, map[string]string{"message": "Login success"})
+		return c.JSON(http.StatusOK, map[string]string{
+			"message":  "Login success",
+			"redirect": "/",
+		})
 	}
 
 	return c.JSON(http.StatusUnauthorized, map[string]string{"message": "Invalid credentials"})

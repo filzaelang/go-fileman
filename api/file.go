@@ -2,7 +2,6 @@ package api
 
 import (
 	"file-manager/helpers"
-	// "file-manager/models"
 	model_file "file-manager/models/file"
 	"fmt"
 	"net/http"
@@ -15,72 +14,75 @@ import (
 )
 
 func RegisterFileRoutes(g *echo.Group) {
-	g.GET("/:id", func(c echo.Context) error {
-		id, _ := strconv.Atoi(c.Param("id"))
+	g.GET("/:id", downloadHandler)
+	g.POST("", uploadHandler)
+}
 
-		filePath, fileName, ext, err := model_file.FileDownloadHarian(id)
+func downloadHandler(c echo.Context) error {
+	id, _ := strconv.Atoi(c.Param("id"))
+
+	filePath, fileName, ext, err := model_file.FileDownloadHarian(id)
+	if err != nil {
+		return c.String(http.StatusNotFound, "File not found")
+	}
+
+	if _, err := os.Stat(filePath); os.IsNotExist(err) {
+		return c.String(http.StatusNotFound, "File not found on disk")
+	}
+
+	var filePathOut = filePath
+	var username = "admin"
+
+	if ext == ".pdf" {
+		filePathOut = filepath.Join("C:/FileManager", fileName) // fmt.Sprintf("C:/FileManager/%s", fileName)
+		err = helpers.AddPDFWatermark(filePath, filePathOut, username)
 		if err != nil {
-			return c.String(http.StatusNotFound, "File not found")
+			return c.String(http.StatusInternalServerError, "Failed to apply watermark to the file")
 		}
+	}
 
-		if _, err := os.Stat(filePath); os.IsNotExist(err) {
-			return c.String(http.StatusNotFound, "File not found on disk")
-		}
+	file, err := os.Open(filePathOut)
+	if err != nil {
+		return c.String(http.StatusInternalServerError, "Failed to open file")
+	}
+	defer file.Close()
 
-		var filePathOut = filePath
-		var username = "admin"
+	disposition := "attachment"
+	mimeType := helpers.DetectMimeType(ext)
+	if ext == ".pdf" {
+		disposition = "inline"
+		mimeType = "application/pdf"
+	}
 
-		if ext == ".pdf" {
-			filePathOut = filepath.Join("C:/FileManager", fileName) // fmt.Sprintf("C:/FileManager/%s", fileName)
-			err = helpers.AddPDFWatermark(filePath, filePathOut, username)
-			if err != nil {
-				return c.String(http.StatusInternalServerError, "Failed to apply watermark to the file")
-			}
-		}
+	c.Response().Header().Set(echo.HeaderContentDisposition, fmt.Sprintf(`%s; filename="%s"`, disposition, fileName))
+	c.Response().Header().Set(echo.HeaderContentType, mimeType)
 
-		file, err := os.Open(filePathOut)
-		if err != nil {
-			return c.String(http.StatusInternalServerError, "Failed to open file")
-		}
-		defer file.Close()
+	if ext == ".pdf" {
+		go helpers.DeleteFile(filePathOut)
+	}
 
-		disposition := "attachment"
-		mimeType := helpers.DetectMimeType(ext)
-		if ext == ".pdf" {
-			disposition = "inline"
-			mimeType = "application/pdf"
-		}
+	return c.Stream(http.StatusOK, mimeType, file)
+}
 
-		c.Response().Header().Set(echo.HeaderContentDisposition, fmt.Sprintf(`%s; filename="%s"`, disposition, fileName))
-		c.Response().Header().Set(echo.HeaderContentType, mimeType)
+func uploadHandler(c echo.Context) error {
+	// Parse multipart form
+	fileHeader, err := c.FormFile("file")
+	if err != nil {
+		return c.String(http.StatusBadRequest, "File tidak ditemukan")
+	}
 
-		if ext == ".pdf" {
-			go helpers.DeleteFile(filePathOut)
-		}
+	redirect_url, message, err := model_file.UploadFile(fileHeader, c) //models.Upload(fileHeader, c)
 
-		return c.Stream(http.StatusOK, mimeType, file)
-	})
-
-	g.POST("", func(c echo.Context) error {
-		// Parse multipart form
-		fileHeader, err := c.FormFile("file")
-		if err != nil {
-			return c.String(http.StatusBadRequest, "File tidak ditemukan")
-		}
-
-		redirect_url, message, err := model_file.UploadFile(fileHeader, c) //models.Upload(fileHeader, c)
-
-		if err != nil {
-			return c.JSON(http.StatusInternalServerError, map[string]string{
-				"message":  message,
-				"redirect": redirect_url,
-			})
-		}
-
-		// return c.Redirect(http.StatusSeeOther, redirect_url)
-		return c.JSON(http.StatusOK, map[string]string{
-			"message":  "Upload berhasil",
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{
+			"message":  message,
 			"redirect": redirect_url,
 		})
+	}
+
+	// return c.Redirect(http.StatusSeeOther, redirect_url)
+	return c.JSON(http.StatusOK, map[string]string{
+		"message":  "Upload berhasil",
+		"redirect": redirect_url,
 	})
 }

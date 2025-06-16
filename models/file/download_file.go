@@ -13,7 +13,7 @@ func FileDownloadHarian(id int) (string, string, string, error) {
 	var title, titlehead, foldertype, divname, deptname string
 	var folderoid, divoid, deptoid int
 
-	transaction, err := db.DB_DEV.Begin()
+	transaction, err := db.DB.Begin()
 	if err != nil {
 		return "", "", "", err
 	}

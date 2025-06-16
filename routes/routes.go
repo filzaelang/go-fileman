@@ -14,12 +14,11 @@ import (
 )
 
 func ConfigureRoutes(e *echo.Echo) {
-	apiGroupMenu := e.Group("/api/menus")
-	api.RegisterMenuRoutes(apiGroupMenu)
-	apiGroupFile := e.Group("/api/files")
-	api.RegisterFileRoutes(apiGroupFile)
-	apiGroupDummy := e.Group("/api/dummy")
-	api.RegisterFileRoutesDummy(apiGroupDummy)
+	apiGroup := e.Group("/api")
+	api.RegisterAuthRoutes(apiGroup.Group("/auth"))
+	api.RegisterMenuRoutes(apiGroup.Group("/menus"))
+	api.RegisterFileRoutes(apiGroup.Group("/files"))
+	api.RegisterFileRoutesDummy(apiGroup.Group("/dummy"))
 
 	// Dynamic routes
 	e.GET("/folder/:folderoid/:divoid/:deptoid", dynamicMenuHandler)
@@ -28,6 +27,11 @@ func ConfigureRoutes(e *echo.Echo) {
 	e.GET("/", func(ctx echo.Context) error {
 		items, _ := models.GetFile()
 		return renderWithMenus(ctx, "Index", "Selamat Datang", items)
+	})
+
+	e.GET("/login", func(ctx echo.Context) error {
+		props := map[string]interface{}{}
+		return ctx.Render(http.StatusOK, "Login", props)
 	})
 
 	e.GET("/dashboard", func(ctx echo.Context) error {

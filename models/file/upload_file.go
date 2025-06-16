@@ -38,7 +38,7 @@ func UploadFile(fileHeader *multipart.FileHeader, c echo.Context) (string, strin
 		return "", "", fmt.Errorf("invalid deptoid: %w", err)
 	}
 
-	transaction, err := db.DB_DEV.Begin()
+	transaction, err := db.DB.Begin()
 	if err != nil {
 		return "", "", err
 	}

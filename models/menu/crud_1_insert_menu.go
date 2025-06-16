@@ -7,7 +7,7 @@ import (
 )
 
 func InsertMenu(payload AddMenuPayload) error {
-	transaction, err := db.DB_DEV.Begin()
+	transaction, err := db.DB.Begin()
 	if err != nil {
 		return err
 	}
@@ -217,7 +217,7 @@ func AddBUfolderChild(payload AddMenuPayload, transaction *sql.Tx) error {
 	var div_list []int
 	var seq int
 
-	listBURows, err := db.DB_DEV.Query(`select divoid, seq from bu_list order by seq asc`)
+	listBURows, err := db.DB.Query(`select divoid, seq from bu_list order by seq asc`)
 	if err != nil {
 		return err
 	}
@@ -270,7 +270,7 @@ func AddBUdeptfolderChild(payload AddMenuPayload, transaction *sql.Tx) error {
 	var div_list []int
 	var seq int
 
-	listBURows, err := db.DB_DEV.Query(`select divoid, seq from bu_list order by seq asc`)
+	listBURows, err := db.DB.Query(`select divoid, seq from bu_list order by seq asc`)
 	if err != nil {
 		return err
 	}
@@ -325,7 +325,7 @@ func AddBUdeptfolderChild(payload AddMenuPayload, transaction *sql.Tx) error {
 
 func AddBUdeptfolderLastChild(payload AddMenuPayload, transaction *sql.Tx) error {
 	var lastDeptId int
-	lastDeptIdrow := db.DB_DEV.QueryRow(`
+	lastDeptIdrow := db.DB.QueryRow(`
 			select top 1 deptoid from dept_list order by deptoid desc 
 		`)
 	err := lastDeptIdrow.Scan(&lastDeptId)

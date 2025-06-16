@@ -7,7 +7,10 @@ Kecil : submit ke api masih di component
 Bug gk bisa changename budeptfolder di deploy
 
 Sementara saat ini, tampilkan file di folder
+ubah struktur folder menjadi vertical slice
 
 // Yang atas agak belakangan aja
 
 Utama = Ubah "oid" yang sebelumnya tambah manual menjadi menggunan set_identity on/off (seperti di log)
+Ubah bind formData menjadi seperti auth
+=> Ubah bentuk RegisterMenuRoutes dan sejenisnya seperti di routes/api

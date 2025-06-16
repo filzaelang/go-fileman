@@ -58,7 +58,7 @@ func GetFile(folderoid, divoid, deptoid int) ([]FileItem, error) {
 
 	query += " lastupdatetime desc"
 
-	rows, err := db.DB_DEV.Query(query, args...)
+	rows, err := db.DB.Query(query, args...)
 	if err != nil {
 		return nil, err
 	}

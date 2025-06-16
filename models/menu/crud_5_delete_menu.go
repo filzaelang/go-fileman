@@ -7,7 +7,7 @@ import (
 )
 
 func DeleteMenu(payload DeleteMenuPayload) error {
-	transaction, err := db.DB_DEV.Begin()
+	transaction, err := db.DB.Begin()
 	if err != nil {
 		return err
 	}

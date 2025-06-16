@@ -20,7 +20,7 @@ func GetOneMenu(payload UpdateMenuPayload) (string, error) {
 
 func HeadAndSubfolder(payload UpdateMenuPayload) (string, error) {
 	var name = ""
-	row := db.DB_DEV.QueryRow(`
+	row := db.DB.QueryRow(`
 			select top 1 name
 			from folder_list
 			where folderoid = @folderoid
@@ -32,7 +32,7 @@ func HeadAndSubfolder(payload UpdateMenuPayload) (string, error) {
 
 func InsideBUdeptChild(payload UpdateMenuPayload) (string, error) {
 	var name = ""
-	row := db.DB_DEV.QueryRow(`
+	row := db.DB.QueryRow(`
 		select top 1 name 
 		from dept_list 
 		where divoid = @divoid

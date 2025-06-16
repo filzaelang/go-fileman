@@ -98,3 +98,10 @@ create table log (
   , constraint log_pk primary key (id)
 )
 -- "set identity_insert log off"
+
+create table role_list (
+    profoid varchar(20)
+  , proftype varchar(20)
+
+  , constraint role_list_pk primary key(profoid)
+)

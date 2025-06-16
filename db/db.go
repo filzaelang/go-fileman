@@ -12,7 +12,7 @@ var DB *sql.DB
 
 func Init() {
 	var err error
-	dsn := os.Getenv("DB_DSN")
+	dsn := os.Getenv("DB_DSN_DEV")
 	DB, err = sql.Open("sqlserver", dsn)
 	if err != nil {
 		log.Fatal("Error opening database: ", err)

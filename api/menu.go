@@ -8,75 +8,80 @@ import (
 )
 
 func RegisterMenuRoutes(g *echo.Group) {
-	g.GET("", func(c echo.Context) error {
-		menu_list, err := menu.GetSidebarMenu()
-		if err != nil {
-			return c.String(http.StatusNotFound, "Menu not found")
-		}
-		return c.JSON(http.StatusOK, menu_list)
-	})
+	g.GET("", getAllMenuHandler)
+	g.POST("/getone", getOneMenuHandler)
+	g.POST("", insertMenuHandler)
+	g.PUT("", updateMenuHandler)
+	g.POST("/delete", deleteMenuHandler)
+	g.POST("/bulist", getMenuBUListHandler)
+}
 
-	g.POST("/getone", func(c echo.Context) error {
-		var payload menu.UpdateMenuPayload
-		if err := c.Bind(&payload); err != nil {
-			return c.String(http.StatusBadRequest, "Invalid input")
-		}
+func getAllMenuHandler(c echo.Context) error {
+	menu_list, err := menu.GetSidebarMenu()
+	if err != nil {
+		return c.String(http.StatusNotFound, "Menu not found")
+	}
+	return c.JSON(http.StatusOK, menu_list)
+}
 
-		name, err := menu.GetOneMenu(payload)
-		if err != nil {
-			return c.String(http.StatusNotFound, "Menu not found")
-		}
+func getOneMenuHandler(c echo.Context) error {
+	var payload menu.UpdateMenuPayload
+	if err := c.Bind(&payload); err != nil {
+		return c.String(http.StatusBadRequest, "Invalid input")
+	}
 
-		return c.JSON(http.StatusOK, name)
-	})
+	name, err := menu.GetOneMenu(payload)
+	if err != nil {
+		return c.String(http.StatusNotFound, "Menu not found")
+	}
 
-	g.POST("", func(c echo.Context) error {
-		var payload menu.AddMenuPayload
-		if err := c.Bind(&payload); err != nil {
-			return c.String(http.StatusBadRequest, "Invalid input")
-		}
-		if err := menu.InsertMenu(payload); err != nil {
-			return c.String(http.StatusInternalServerError, "Insert failed")
-		}
-		return c.Redirect(http.StatusSeeOther, "/")
-		// return c.Redirect(http.StatusSeeOther, c.Request().RequestURI)
-	})
+	return c.JSON(http.StatusOK, name)
+}
 
-	g.PUT("", func(c echo.Context) error {
-		var payload menu.UpdateMenuPayload
-		if err := c.Bind(&payload); err != nil {
-			return c.String(http.StatusBadRequest, "Invalid input")
-		}
-		if err := menu.UpdateMenu(payload); err != nil {
-			return c.String(http.StatusInternalServerError, "Update failed")
-		}
-		return c.Redirect(http.StatusSeeOther, "/")
-		// return c.Redirect(http.StatusSeeOther, c.Request().RequestURI)
-	})
+func insertMenuHandler(c echo.Context) error {
+	var payload menu.AddMenuPayload
+	if err := c.Bind(&payload); err != nil {
+		return c.String(http.StatusBadRequest, "Invalid input")
+	}
+	if err := menu.InsertMenu(payload); err != nil {
+		return c.String(http.StatusInternalServerError, "Insert failed")
+	}
+	return c.Redirect(http.StatusSeeOther, "/")
+}
 
-	g.POST("/delete", func(c echo.Context) error {
-		var payload menu.DeleteMenuPayload
+func updateMenuHandler(c echo.Context) error {
+	var payload menu.UpdateMenuPayload
+	if err := c.Bind(&payload); err != nil {
+		return c.String(http.StatusBadRequest, "Invalid input")
+	}
+	if err := menu.UpdateMenu(payload); err != nil {
+		return c.String(http.StatusInternalServerError, "Update failed")
+	}
+	return c.Redirect(http.StatusSeeOther, "/")
+}
 
-		if err := c.Bind(&payload); err != nil {
-			return c.String(http.StatusBadRequest, "Invalid input")
-		}
+func deleteMenuHandler(c echo.Context) error {
+	var payload menu.DeleteMenuPayload
 
-		if err := menu.DeleteMenu(payload); err != nil {
-			return c.String(http.StatusInternalServerError, "Delete failed")
-		}
-		return c.Redirect(http.StatusSeeOther, "/")
-	})
+	if err := c.Bind(&payload); err != nil {
+		return c.String(http.StatusBadRequest, "Invalid input")
+	}
 
-	g.POST("/bulist", func(c echo.Context) error {
-		var payload menu.BuChildList
-		if err := c.Bind(&payload); err != nil {
-			return c.String(http.StatusBadRequest, "Invalid input")
-		}
+	if err := menu.DeleteMenu(payload); err != nil {
+		return c.String(http.StatusInternalServerError, "Delete failed")
+	}
+	return c.Redirect(http.StatusSeeOther, "/")
+}
 
-		bu_list, err := menu.GetBUList(payload)
-		if err != nil {
-			return c.String(http.StatusNotFound, "BU's not found")
-		}
-		return c.JSON(http.StatusOK, bu_list)
-	})
+func getMenuBUListHandler(c echo.Context) error {
+	var payload menu.BuChildList
+	if err := c.Bind(&payload); err != nil {
+		return c.String(http.StatusBadRequest, "Invalid input")
+	}
+
+	bu_list, err := menu.GetBUList(payload)
+	if err != nil {
+		return c.String(http.StatusNotFound, "BU's not found")
+	}
+	return c.JSON(http.StatusOK, bu_list)
 }

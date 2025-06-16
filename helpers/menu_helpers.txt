@@ -10,7 +10,7 @@
 
 // func GetHeadfolder(Headfolder string) (int, error) {
 // 	var folder_id int
-// 	headfolderRows := db.DB_DEV.QueryRow(`
+// 	headfolderRows := db.DB.QueryRow(`
 // 				select top 1 folder_id
 // 				from folder_list
 // 				where headfolder = @headfolder
@@ -24,7 +24,7 @@
 // }
 
 // func GetSubFolder(Headfolder string) ([]*models.MenuSidebar, error) {
-// 	childRows, err := db.DB_DEV.Query(`
+// 	childRows, err := db.DB.Query(`
 // 			select name, folder_id
 // 			from folder_list
 // 			where headfolder = @headfolder
@@ -58,7 +58,7 @@
 // 	var children []*models.MenuSidebar
 
 // 	var divIdList []int
-// 	divIdListRows, err := db.DB_DEV.Query(`
+// 	divIdListRows, err := db.DB.Query(`
 // 		select distinct div_id, seq
 // 		from bu_list
 // 		where div_id in (
@@ -108,7 +108,7 @@
 // 		buChildRows.Close()
 // 	}
 
-// 	folderRows, err := db.DB_DEV.Query(`
+// 	folderRows, err := db.DB.Query(`
 // 		select folder_id from folder_list where headfolder = @headfolder
 // 	`, sql.Named("headfolder", Headfolder))
 // 	if err != nil {
@@ -145,7 +145,7 @@
 // 	var children []*models.MenuSidebar
 
 // 	var folder_id int
-// 	rowsFolderId := db.DB_DEV.QueryRow(`
+// 	rowsFolderId := db.DB.QueryRow(`
 // 		select top 1 folder_id from folder_list where headfolder = @headfolder
 // 	`, sql.Named("headfolder", Headfolder))
 // 	err := rowsFolderId.Scan(&folder_id)
@@ -154,7 +154,7 @@
 // 	}
 
 // 	var divIdList []int
-// 	divIdListRows, err := db.DB_DEV.Query(`
+// 	divIdListRows, err := db.DB.Query(`
 // 		select distinct div_id, seq
 // 		from bu_list
 // 		where div_id in (
@@ -201,7 +201,7 @@
 // 			}
 
 // 			var deptIdList []int
-// 			buRowsThree, err := db.DB_DEV.Query(`
+// 			buRowsThree, err := db.DB.Query(`
 // 				select distinct dept_id
 // 				from folder_dept
 // 				where div_id = @div_id
@@ -225,7 +225,7 @@
 // 			buRowsThree.Close()
 
 // 			if len(deptIdList) > 0 {
-// 				buRowsFour, err := db.DB_DEV.Query(`
+// 				buRowsFour, err := db.DB.Query(`
 // 							select dept_id, name
 // 							from dept_list
 // 							where div_id = @div_id

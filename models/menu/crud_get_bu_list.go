@@ -43,7 +43,7 @@ func BUListFolder(payload BuChildList, queryBUAlreadyExist string) ([]BUList, er
 
 	// Take folder which exist in this folder
 	var divIdList []int
-	divIdListRows, err := db.DB_DEV.Query(queryBUAlreadyExist, sql.Named("folderoid", payload.Folderoid))
+	divIdListRows, err := db.DB.Query(queryBUAlreadyExist, sql.Named("folderoid", payload.Folderoid))
 	if err != nil {
 		return nil, err
 	}
@@ -104,7 +104,7 @@ func BUListFolder(payload BuChildList, queryBUAlreadyExist string) ([]BUList, er
 
 // 	// Take folder which exist in this folder
 // 	var divIdList []int
-// 	divIdListRows, err := db.DB_DEV.Query(`
+// 	divIdListRows, err := db.DB.Query(`
 // 		select distinct divoid, seq
 // 		from bu_list
 // 		where divoid in (

@@ -30,7 +30,6 @@ func main() {
 	// Init_DB
 	db.Init()
 	db.Init_Mis()
-	db.Init_Dev()
 
 	e := echo.New()
 
